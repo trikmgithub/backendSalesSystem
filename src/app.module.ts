@@ -14,11 +14,11 @@ import { UsersModule } from './users/users.module';
       inject: [ConfigService],
     }),
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
-    UsersModule
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
