@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { SoftDeleteUserDto } from './dto/soft-delete-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,6 @@ export class UsersService {
     const hash = bcrypt.hashSync(password, salt);
     return hash;
   };
-
 
   //create user
   async create(createUserDto: CreateUserDto) {
@@ -34,7 +34,8 @@ export class UsersService {
 
   //login
   async login(email: string, password: string) {
-    const user = await this.userModel.findOne({ email })
+    const user = await this.userModel
+      .findOne({ email })
       .select('password')
       .exec();
 
@@ -52,40 +53,57 @@ export class UsersService {
     return isMatch;
   }
 
-
   //find one user by id
   findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return `not found user`;
+    if (!mongoose.Types.ObjectId.isValid(id)) return `not found user`;
     return this.userModel.findOne({
-      _id: id
-    })
+      _id: id,
+    });
   }
 
   findOneByUsername(username: string) {
     return this.userModel.findOne({
-      email: username
-    })
+      email: username,
+    });
   }
-  
+
   isValidPassword(password: string, hash: string) {
     return bcrypt.compareSync(password, hash);
   }
 
-
   //update user
   async update(updateUserDto: UpdateUserDto) {
-    return await this.userModel.updateOne({ _id: updateUserDto._id }, { ...updateUserDto })
+    return await this.userModel.updateOne(
+      { _id: updateUserDto._id },
+      { ...updateUserDto },
+    );
   }
-
 
   //delete user
-  remove(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return `not found user`;
-    return this.userModel.deleteOne({
-      _id: id
-    })
-  }
 
+  async remove(id: string, softDeleteUserDto: SoftDeleteUserDto) {
+
+    // Kiểm tra xem _id có hợp lệ không
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error('Invalid user ID');
+    }
+
+    // Thực hiện tìm kiếm và cập nhật người dùng
+    const result = await this.userModel.findOneAndUpdate(
+      { _id: id },
+      { isDeleted: true, deletedAt : new Date() },
+      { new: true }, // Trả về tài liệu đã cập nhật
+    );
+
+    // Xử lý khi không tìm thấy người dùng
+    if (!result) {
+      throw new Error('User not found');
+    }
+
+    // Trả về kết quả
+    return {
+      message: 'User soft deleted successfully',
+      data: result,
+    };
+  }
 }
