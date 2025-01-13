@@ -8,3 +8,4 @@ export class UpdateUserDto extends OmitType(CreateUserDto, [
 ] as const) {
   _id: string;
 }
+

@@ -35,6 +35,7 @@ export class UsersController {
   findOne(
     @Param('id')
     id: string,
+    id: string,
   ) {
     return this.usersService.findOne(id);
   }
@@ -46,6 +47,9 @@ export class UsersController {
   }
 
   //remove user by id
+  @Patch(':id')
+  remove(@Param('id') id: string ,@Body() softDeleteUserDto: SoftDeleteUserDto) {
+    return this.usersService.remove(id, softDeleteUserDto);
   @Patch(':id')
   remove(@Param('id') id: string ,@Body() softDeleteUserDto: SoftDeleteUserDto) {
     return this.usersService.remove(id, softDeleteUserDto);
