@@ -32,6 +32,17 @@ export class UsersService {
     return user;
   }
 
+  async createGoogleUser(googleUserInfo: any) {
+
+    let user = await this.userModel.create({
+      email: googleUserInfo.email,
+      name: googleUserInfo.firstName + ' ' + googleUserInfo.lastName,
+      accessToken: googleUserInfo.accessToken,
+    });
+
+    return user;
+  }
+
   //login
   async login(email: string, password: string) {
     const user = await this.userModel

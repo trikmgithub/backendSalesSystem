@@ -5,14 +5,17 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop()
   password: string;
 
   @Prop()
   name: string;
+
+  @Prop()
+  accessToken: string;
 
   @Prop({ default: false })
   isDeleted: boolean;

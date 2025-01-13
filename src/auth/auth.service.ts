@@ -20,6 +20,17 @@ export class AuthService {
     return null;
   }
 
+  async validateGoogleUser(details: any) {
+    console.log('AuthService');
+    console.log(details);
+    const user = await this.usersService.findOneByUsername(details.email);
+    console.log(user);
+    if (user) return user;
+    console.log('User not found. Creating...');
+    const newUser = this.usersService.createGoogleUser(details);
+    return newUser;
+  }
+
   async login(user: any) {
     const payload = {
       username: user.email,
@@ -29,4 +40,5 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+
 }
