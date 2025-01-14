@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { SoftDeleteUserDto } from './dto/soft-delete-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { ResponseMessage } from 'src/decorator/customize';
 
 @ApiTags('users')
 @Controller('users')
@@ -32,11 +33,7 @@ export class UsersController {
 
   //find one user by id
   @Get(':id')
-  findOne(
-    @Param('id')
-    id: string,
-    id: string,
-  ) {
+  findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
@@ -50,8 +47,6 @@ export class UsersController {
   @Patch(':id')
   remove(@Param('id') id: string ,@Body() softDeleteUserDto: SoftDeleteUserDto) {
     return this.usersService.remove(id, softDeleteUserDto);
-  @Patch(':id')
-  remove(@Param('id') id: string ,@Body() softDeleteUserDto: SoftDeleteUserDto) {
-    return this.usersService.remove(id, softDeleteUserDto);
   }
+ 
 }

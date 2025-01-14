@@ -33,7 +33,6 @@ export class UsersService {
   }
 
   async createGoogleUser(googleUserInfo: any) {
-
     let user = await this.userModel.create({
       email: googleUserInfo.email,
       name: googleUserInfo.firstName + ' ' + googleUserInfo.lastName,
@@ -93,7 +92,6 @@ export class UsersService {
   //delete user
 
   async remove(id: string, softDeleteUserDto: SoftDeleteUserDto) {
-
     // Kiểm tra xem _id có hợp lệ không
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error('Invalid user ID');
@@ -102,7 +100,7 @@ export class UsersService {
     // Thực hiện tìm kiếm và cập nhật người dùng
     const result = await this.userModel.findOneAndUpdate(
       { _id: id },
-      { isDeleted: true, deletedAt : new Date() },
+      { isDeleted: true, deletedAt: new Date() },
       { new: true }, // Trả về tài liệu đã cập nhật
     );
 
