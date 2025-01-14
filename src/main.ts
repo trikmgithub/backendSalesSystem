@@ -11,7 +11,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const reflector = app.get(Reflector);
-  // app.useGlobalGuards(new JwtAuthGuard(reflector));
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
   //transform response
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
@@ -38,7 +38,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: ['1'] //v1
+    defaultVersion: ['1'], //v1
   });
 
   await app.listen(configService.get<string>('PORT') ?? 8080);

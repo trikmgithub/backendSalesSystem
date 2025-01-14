@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { AuthService } from './auth.service';
-import { Public, ResponseMessage } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
+import { IUser } from 'src/users/interface/users.interface';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth Module')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -14,8 +16,12 @@ export class AuthController {
   @ResponseMessage('Login success')
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  handleLogin(@Req() req: Request) {
-    return this.authService.login(req.user);
+  @ApiOperation({ summary: 'Login a user' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  handleLogin(@User() user: IUser) {
+    //@Req() req: Request
+    //user = req.user
+    return this.authService.login(user);
   }
 
   @Get('profile')

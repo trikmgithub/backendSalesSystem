@@ -17,11 +17,10 @@ export class RegisterUserDto {
   @IsNotEmpty()
   gender: string;
 
-  @IsNotEmpty()
-  address: string;
+  role: string;
 
   @IsNotEmpty()
-  role: string;
+  address: string;
 
   isDeleted: boolean;
 }

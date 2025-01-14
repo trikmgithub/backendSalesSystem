@@ -11,17 +11,17 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Name không được để trống' })
   name: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Age không được để trống' })
   age: number;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Gender không được để trống' })
   gender: string;
 
-  @IsNotEmpty()
-  address: string;
-
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Address không được để trống' })
   role: string;
+
+  @IsNotEmpty({ message: 'Address không được để trống' })
+  address: string;
 
   isDeleted: boolean;
 }

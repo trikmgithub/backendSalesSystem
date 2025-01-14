@@ -1,10 +1,25 @@
-import { OmitType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './create-user.dto';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
-//OmitType is a utility function that creates a new DTO class by inheriting
-//all properties of the base DTO class except the properties specified in the generic argument.
-export class UpdateUserDto extends OmitType(CreateUserDto, [
-  'password',
-] as const) {
+export class UpdateUserDto {
+  @IsNotEmpty({ message: 'User_id không được để trống' })
   _id: string;
+
+  @IsEmail({}, { message: 'Email không đúng định dạng' })
+  @IsNotEmpty({ message: 'Email không được để trống' })
+  email: string;
+
+  @IsNotEmpty({ message: 'Name không được để trống' })
+  name: string;
+
+  @IsNotEmpty({ message: 'Age không được để trống' })
+  age: number;
+
+  @IsNotEmpty({ message: 'Gender không được để trống' })
+  gender: string;
+
+  @IsNotEmpty({ message: 'Role không được để trống' })
+  role: string;
+
+  @IsNotEmpty({ message: 'Address không được để trống' })
+  address: string;
 }
