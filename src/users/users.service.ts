@@ -8,7 +8,6 @@ import * as bcrypt from 'bcrypt';
 import { IUser } from './interface/users.interface';
 import { User } from 'src/decorator/customize';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { FilterOperator, FilterSuffix, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { PaginationDto } from './dto/pagination-user.dto';
 
 @Injectable()
@@ -16,6 +15,18 @@ export class UsersService {
   constructor(
     @InjectModel(UserModel.name) private userModel: Model<UserModel>,
   ) {}
+
+  //------------------config
+  //get user by refreshtoken
+  findUserByToken = async (refreshToken: string) => {
+    return await this.userModel.findOne({ refreshToken })
+  }
+
+
+  //update token
+  updateUserToken = async (refreshToken: string, _id: string) => {
+    return await this.userModel.updateOne({ _id }, { refreshToken });
+  };
 
   //hash password
   getHashPassword = (password: string) => {
@@ -51,8 +62,6 @@ export class UsersService {
       address,
       role,
     });
-
-    console.log(newUser);
 
     return newUser;
   }
@@ -113,34 +122,32 @@ export class UsersService {
 
   //get one user with id
   async getOneUsers(id: string) {
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid user ID');
     }
 
-    const userInfo = this.userModel.findOne({_id: id})
+    const userInfo = this.userModel.findOne({ _id: id });
     return userInfo;
   }
 
-
   //get all users with pagination
   async getAllUsers(paginationDto: PaginationDto) {
-    const page = paginationDto.page ?? 1; 
+    const page = paginationDto.page ?? 1;
     const limit = paginationDto.limit ?? 10;
-  
+
     const skip = (page - 1) * limit;
-  
+
     const items = await this.userModel.find().skip(skip).limit(limit).exec();
     const total = await this.userModel.countDocuments();
-  
+
     return {
       meta: {
         currentPage: page,
         sizePage: limit,
         numberUsers: total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       },
-      result: items
+      result: items,
     };
   }
 
@@ -162,10 +169,7 @@ export class UsersService {
   }
 
   //soft delete a user
-  async softDeleteOneUser(
-    id: string,
-    user: IUser,
-  ) {
+  async softDeleteOneUser(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid user ID');
     }
@@ -178,7 +182,8 @@ export class UsersService {
           _id: user._id,
         },
         deletedAt: new Date(),
-      });
+      },
+    );
 
     return deleteUser;
   }
@@ -187,16 +192,12 @@ export class UsersService {
 
   //delete a user
   async deleteOneUser(id: string) {
-    
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid user ID');
     }
 
-      const deleteUser = await this.userModel.deleteOne({ _id: id });
+    const deleteUser = await this.userModel.deleteOne({ _id: id });
 
-      return deleteUser;
-
+    return deleteUser;
   }
-
-
 }

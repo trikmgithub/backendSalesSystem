@@ -6,19 +6,18 @@ import {
   Patch,
   Param,
   Delete,
-  Res,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationDto } from './dto/pagination-user.dto'; 
+import { PaginationDto } from './dto/pagination-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './interface/users.interface';
 import { RegisterUserDto } from './dto/register-user.dto';
 
-@ApiTags('users')
+@ApiTags('Users Module')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -55,11 +54,11 @@ export class UsersController {
   //get one user by id
   @Get('/info/:id')
   @ResponseMessage('Get one user by id successfully')
-  async getOneUser(@Param('id') id: string ) {
+  async getOneUser(@Param('id') id: string) {
     const userInfo = await this.usersService.getOneUsers(id);
     return {
       userInfo,
-    }
+    };
   }
 
   //get all users with pagination
@@ -69,17 +68,23 @@ export class UsersController {
     const paginateUser = await this.usersService.getAllUsers(paginationDto);
     return {
       paginateUser,
-    }
+    };
   }
 
   //find one user by id
-  
+
   //------------------------PATCH /users
 
   //update one user
   @Patch('/update')
-  async updateOneUser(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
-    const updateUser = await this.usersService.updateOneUser(updateUserDto, user);
+  async updateOneUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @User() user: IUser,
+  ) {
+    const updateUser = await this.usersService.updateOneUser(
+      updateUserDto,
+      user,
+    );
     return {
       updateUser,
     };
@@ -88,16 +93,12 @@ export class UsersController {
   //soft delete a user
   @Patch('/delete/:id')
   @ResponseMessage('Soft delete user success')
-  async softDeleteOneUser(
-    @Param('id') id: string,
-    @User() user: IUser,
-  ) {
+  async softDeleteOneUser(@Param('id') id: string, @User() user: IUser) {
     const deleteUser = await this.usersService.softDeleteOneUser(id, user);
     return {
       deleteUser,
-    }
+    };
   }
- 
 
   //-----------------------------DELETE /users
 

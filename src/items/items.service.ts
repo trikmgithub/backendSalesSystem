@@ -1,26 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import mongoose, { Model } from 'mongoose';
+import { Item as ItemModel } from './schemas/item.schema';
 
 @Injectable()
 export class ItemsService {
-  create(createItemDto: CreateItemDto) {
-    return 'This action adds a new item';
+  constructor(
+    @InjectModel(ItemModel.name) private itemModel: Model<ItemModel>,
+  ) {}
+  
+  //--------------------POST /items
+
+  //create new item
+  async createNewItem(createItemDto: CreateItemDto) {
+    const { name, price, description, brand } = createItemDto;
+
+    let newItem = await this.itemModel.create({
+      name,
+      price,
+      description,
+      brand
+    });
+
+    return newItem;
   }
 
-  findAll() {
-    return `This action returns all items`;
+  //--------------------GET /items
+
+  //get item by id
+  async getItemById(id: string) {
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid item ID');
+    }
+
+    const item = await this.itemModel.findById({ _id: id});
+
+    return item;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} item`;
-  }
 
-  update(id: number, updateItemDto: UpdateItemDto) {
-    return `This action updates a #${id} item`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} item`;
-  }
 }

@@ -32,9 +32,6 @@ export class User {
   @Prop()
   refreshToken: string;
 
-  @Prop()
-  accessToken: string;
-
   @Prop({ default: false })
   isDeleted: boolean;
 

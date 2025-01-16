@@ -10,33 +10,38 @@ import {
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { ResponseMessage } from 'src/decorator/customize';
 
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
-  @Post()
-  create(@Body() createItemDto: CreateItemDto) {
-    return this.itemsService.create(createItemDto);
+  //-----------------POST /items
+
+  //create new item
+  @ResponseMessage('Create new item successfully')
+  @Post('/create')
+  async createNewItem(@Body() createItemDto: CreateItemDto) {
+    
+    let newItem = await this.itemsService.createNewItem(createItemDto);
+    
+    return {
+      newItem,
+    };
   }
 
-  @Get()
-  findAll() {
-    return this.itemsService.findAll();
+  //----------------GET /items
+
+  //get one item
+  @ResponseMessage('Get item successfully')
+  @Get('/:id')
+  async getItemById(@Param('id') id: string) {
+
+    const item = await this.itemsService.getItemById(id);
+
+    return {
+      item,
+    };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    return this.itemsService.update(+id, updateItemDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.itemsService.remove(+id);
-  }
 }

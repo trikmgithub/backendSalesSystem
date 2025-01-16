@@ -1,27 +1,60 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards, Res } from '@nestjs/common';
 import { Request } from 'express';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { AuthService } from './auth.service';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
 import { IUser } from 'src/users/interface/users.interface';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserLoginDto } from 'src/users/dto/create-user.dto';
+import { Response } from 'express';
 
 @ApiTags('Auth Module')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  //---------------------------------------Logout: auth/logout
+  @ResponseMessage("Logout User")
+  @Post('/logout')
+  handleLogout(
+      @Res({ passthrough: true }) response: Response,
+      @User() user: IUser
+  ) {
+      return this.authService.logout(response, user);
+  }
+
+  //---------------------------------------Login: auth/login
   @Public()
   @ResponseMessage('Login success')
   @UseGuards(LocalAuthGuard)
   @Post('/login')
+  @ApiBody({ type: UserLoginDto })
   @ApiOperation({ summary: 'Login a user' })
   @ApiResponse({ status: 200, description: 'Login successful' })
-  handleLogin(@User() user: IUser) {
+  handleLogin(
+    @User() user: IUser,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     //@Req() req: Request
     //user = req.user
-    return this.authService.login(user);
+    return this.authService.login(user, response);
+  }
+
+  //---------------------------------------Get user information: auth/account
+  @ResponseMessage('Get user information')
+  @Get('/account')
+  handleGetAccount(@User() user: IUser) {
+    return { user };
+  }
+
+  //---------------------------------------Get user by refresh token: auth/refresh
+  @Public()
+  @ResponseMessage("Get User by refresh token")
+  @Get('/refresh')
+  handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+      const refreshToken = request.cookies["refresh_token"];
+      return this.authService.processNewToken(refreshToken, response);
   }
 
   @Get('profile')
