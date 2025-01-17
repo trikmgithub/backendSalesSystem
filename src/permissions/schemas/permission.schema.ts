@@ -1,18 +1,24 @@
-import { Prop, Schema } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema({ timestamps: true})
+@Schema({ timestamps: true })
 export class Permission {
-    @Prop()
-    name: string;
+  @Prop()
+  name: string;
 
-    @Prop()
-    path: string;
+  @Prop()
+  apiPath: string;
 
-    @Prop()
+  @Prop()
+  method: string;
 
-    method: string;
+  @Prop()
+  module: string;
 
-    @Prop()
+  @Prop({ default: false })
+  isDeleted: boolean;
 
-    description: string;
+  @Prop()
+  deletedAt: Date;
 }
+
+export const PermissionSchema = SchemaFactory.createForClass(Permission);

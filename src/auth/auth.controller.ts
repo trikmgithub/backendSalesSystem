@@ -15,13 +15,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   //---------------------------------------Logout: auth/logout
-  @ResponseMessage("Logout User")
+  @ResponseMessage('Logout User')
   @Post('/logout')
   handleLogout(
-      @Res({ passthrough: true }) response: Response,
-      @User() user: IUser
+    @Res({ passthrough: true }) response: Response,
+    @User() user: IUser,
   ) {
-      return this.authService.logout(response, user);
+    return this.authService.logout(response, user);
   }
 
   //---------------------------------------Login: auth/login
@@ -50,11 +50,14 @@ export class AuthController {
 
   //---------------------------------------Get user by refresh token: auth/refresh
   @Public()
-  @ResponseMessage("Get User by refresh token")
+  @ResponseMessage('Get User by refresh token')
   @Get('/refresh')
-  handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-      const refreshToken = request.cookies["refresh_token"];
-      return this.authService.processNewToken(refreshToken, response);
+  handleRefreshToken(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken = request.cookies['refresh_token'];
+    return this.authService.processNewToken(refreshToken, response);
   }
 
   @Get('profile')

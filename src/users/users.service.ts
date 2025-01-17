@@ -19,9 +19,8 @@ export class UsersService {
   //------------------config
   //get user by refreshtoken
   findUserByToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken })
-  }
-
+    return await this.userModel.findOne({ refreshToken });
+  };
 
   //update token
   updateUserToken = async (refreshToken: string, _id: string) => {
@@ -126,7 +125,7 @@ export class UsersService {
       throw new BadRequestException('Invalid user ID');
     }
 
-    const userInfo = this.userModel.findOne({ _id: id });
+    const userInfo = (await this.userModel.findOne({ _id: id }).select("-password")).populate({path: "role", select: {_id: 1, name: 1}});
     return userInfo;
   }
 
@@ -137,7 +136,7 @@ export class UsersService {
 
     const skip = (page - 1) * limit;
 
-    const items = await this.userModel.find().skip(skip).limit(limit).exec();
+    const users = await this.userModel.find().skip(skip).limit(limit).exec();
     const total = await this.userModel.countDocuments();
 
     return {
@@ -147,7 +146,7 @@ export class UsersService {
         numberUsers: total,
         totalPages: Math.ceil(total / limit),
       },
-      result: items,
+      result: users,
     };
   }
 

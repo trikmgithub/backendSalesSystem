@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Role as RoleModel } from './schemas/role.schema';
+import mongoose, { Model } from 'mongoose';
 
 @Injectable()
 export class RolesService {
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  constructor(
+    @InjectModel(RoleModel.name)
+    private roleModel: Model<RoleModel>,
+  ) {}
+
+  //---------------------POST /roles
+
+  //create new role
+  async createRole(createRoleDto: CreateRoleDto) {
+    const { name, description, permissions } = createRoleDto;
+
+    const isExist = await this.roleModel.findOne({ name });
+
+    if (isExist) {
+      throw new BadRequestException(`Role is existed`);
+    }
+
+    // if (!Array.isArray(permissions)) {
+    //     throw new BadRequestException('Permissions must be an array.');
+    // }
+
+    if (!permissions.every((id) => mongoose.isValidObjectId(id))) {
+      throw new BadRequestException(
+        'One or more permissions are not valid ObjectId.',
+      );
+    }
+
+    const newRole = await this.roleModel.create({
+      name: name.toUpperCase(),
+      description,
+      permissions,
+    });
+    return newRole;
   }
 
-  findAll() {
-    return `This action returns all roles`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
-  }
-
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} role`;
-  }
+  //---------------------GET /roles
+  //---------------------PATCH /roles
+  //---------------------DELETE /roles
 }

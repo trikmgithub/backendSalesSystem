@@ -15,30 +15,26 @@ export class BrandsService {
 
   //create new brand
   async createNewBrand(createBrandDto: CreateBrandDto) {
-    const {name, description, items} = createBrandDto;
+    const { name, description, items } = createBrandDto;
 
     const isExist = this.brandModel.findOne({ name });
 
-    if (isExist) {
-      console.log(isExist)
+    if (!isExist) {
       throw new BadRequestException('Brand da ton tai');
     }
 
     const newBrand = await this.brandModel.create({
       name,
       description,
-      items 
-    })
+      items,
+    });
 
     return newBrand;
   }
 
   //---------------GET /brands
-  
 
   //---------------PATCH /brands
 
   //---------------DELETE /brands
-
-
 }
