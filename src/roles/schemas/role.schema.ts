@@ -10,9 +10,6 @@ export class Role {
   @Prop()
   description: string;
 
-  @Prop({ default: true })
-  isActive: boolean;
-
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: Permission.name }])
   permissions: Permission[];
 

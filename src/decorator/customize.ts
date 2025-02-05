@@ -7,6 +7,7 @@ export const RESPONSE_MESSAGE = 'response_message';
 export const ResponseMessage = (message: string) =>
   SetMetadata(RESPONSE_MESSAGE, message);
 
+//Custom decoration to take information of user in request
 export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
