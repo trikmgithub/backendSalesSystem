@@ -120,7 +120,7 @@ export class RolesService {
 
   //delete one role
   async remove( id: string ) {
-    if ( !mongoose.Types.ObjectId.isValid(id)) {
+    if( !mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id role is not valid');
     }
 

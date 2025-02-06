@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -33,6 +34,25 @@ export class ItemsController {
 
   //----------------GET /items
 
+  //get all items
+  @Get('/all')
+  @ResponseMessage("Get all items successfully")
+  async getAllItems() {
+
+  }
+
+
+  //get items with pagination
+  @Public()
+  @ResponseMessage('Get all items with pagination successfully')
+  @Get('/paginate')
+  async getItemsPagination(@Query() paginationItemDto: PaginationItemDto) {
+    const paginateItem = await this.itemsService.getAllItems(paginationItemDto);
+    return {
+      paginateItem,
+    };
+  }
+
   //get one item
   @ResponseMessage('Get item successfully')
   @Get('/:id')
@@ -44,18 +64,28 @@ export class ItemsController {
     };
   }
 
-  //get all items with pagination
-  @Public()
-  @ResponseMessage('Get all items with pagination successfully')
-  @Get('/all')
-  async getAllItems(@Query() paginationItemDto: PaginationItemDto) {
-    const paginateItem = await this.itemsService.getAllItems(paginationItemDto);
-    return {
-      paginateItem,
-    };
-  }
-
   //-------------------PATCH /items
 
+  //update one item
+  @Patch(':id')
+  @ResponseMessage("Update a item successfully")
+  async updateOneItem(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+
+  }
+
+  //soft delete one item
+  @Patch('/hide/:id')
+  @ResponseMessage("Soft delete a item successfully")
+  async hideOneItem(@Param('id') id: string) {
+
+  }
+
   //-------------------DELETE /items
+
+  //delete one item
+  @Delete(':id')
+  @ResponseMessage("Delete a item successfully")
+  async remove(@Param('id') id: string) {
+    
+  }
 }

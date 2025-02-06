@@ -7,7 +7,4 @@ export class CreateBrandDto {
 
   @IsNotEmpty({ message: 'Description khong duoc de trong' })
   description: string;
-
-  @IsNotEmpty({ message: 'Items khong duoc de trong' })
-  items: mongoose.Schema.Types.ObjectId[];
 }

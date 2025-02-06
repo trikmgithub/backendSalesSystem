@@ -15,9 +15,6 @@ export class Brand {
 
   @Prop({ default: false })
   isDeleted: boolean;
-
-  @Prop()
-  deletedAt: Date;
 }
 
 export const BrandSchema = SchemaFactory.createForClass(Brand);
