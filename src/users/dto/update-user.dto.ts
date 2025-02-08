@@ -11,8 +11,8 @@ export class UpdateUserDto {
   @IsNotEmpty({ message: 'Name không được để trống' })
   name: string;
 
-  @IsNotEmpty({ message: 'Age không được để trống' })
-  age: number;
+  @IsNotEmpty({ message: 'dateOfBirth không được để trống' })
+  dateOfBirth: Date;
 
   @IsNotEmpty({ message: 'Gender không được để trống' })
   gender: string;

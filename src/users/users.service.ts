@@ -42,7 +42,7 @@ export class UsersService {
 
   //register a new user
   async registerUser(registerUserDto: RegisterUserDto) {
-    const { email, password, name, age, gender, address } =
+    const { email, password, name, dateOfBirth, gender, address } =
       registerUserDto;
 
     const role = 'CUSTOMER';
@@ -72,7 +72,7 @@ export class UsersService {
       email,
       password: hashPassword,
       name,
-      age,
+      dateOfBirth,
       gender: gender.toUpperCase(),
       address,
       roleId
@@ -83,7 +83,7 @@ export class UsersService {
 
   //create a new user by admin or manager or staff
   async createNewUser(createUserDto: CreateUserDto, @User() user: IUser) {
-    const { email, password, name, age, gender, address, role } = createUserDto;
+    const { email, password, name, dateOfBirth, gender, address, role } = createUserDto;
 
     const isExist = await this.userModel.findOne({ email });
 
@@ -99,7 +99,7 @@ export class UsersService {
       email,
       password: hashPassword,
       name,
-      age,
+      dateOfBirth,
       gender,
       address,
       role,
