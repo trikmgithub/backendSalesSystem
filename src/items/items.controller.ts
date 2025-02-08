@@ -21,15 +21,13 @@ export class ItemsController {
 
   //-----------------POST /items
 
-  //create new item
-  @ResponseMessage('Create new item successfully')
+  //create item
   @Post('/create')
-  async createNewItem(@Body() createItemDto: CreateItemDto) {
-    let newItem = await this.itemsService.createNewItem(createItemDto);
+  @ResponseMessage('Create new item successfully')
+  async createItem(@Body() createItemDto: CreateItemDto) {
+    const item = await this.itemsService.createItem(createItemDto);
 
-    return {
-      newItem,
-    };
+    return item
   }
 
   //----------------GET /items
@@ -86,6 +84,6 @@ export class ItemsController {
   @Delete(':id')
   @ResponseMessage("Delete a item successfully")
   async remove(@Param('id') id: string) {
-    
+
   }
 }

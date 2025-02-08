@@ -3,17 +3,20 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User as UserModel } from './schemas/user.schema';
+import { Role as RoleModel } from 'src/roles/schemas/role.schema';
 import mongoose, { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { IUser } from './interface/users.interface';
 import { User } from 'src/decorator/customize';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { PaginationDto } from './dto/pagination-user.dto';
+import { Mode } from 'fs';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserModel.name) private userModel: Model<UserModel>,
+    @InjectModel(RoleModel.name) private roleModel: Model<RoleModel>,
   ) {}
 
   //------------------config
@@ -38,17 +41,30 @@ export class UsersService {
   //------------------------POST /users
 
   //register a new user
-  async registerNewUser(registerUserDto: RegisterUserDto) {
-    const { email, password, name, age, gender, address, role } =
+  async registerUser(registerUserDto: RegisterUserDto) {
+    const { email, password, name, age, gender, address } =
       registerUserDto;
+
+    const role = 'CUSTOMER';
 
     const isExist = await this.userModel.findOne({ email });
 
     if (isExist) {
       throw new BadRequestException(
-        `Email: ${email} đã tồn tại trong hệ thống.`,
+        `Email: ${email} is existed.`,
       );
     }
+
+    if (gender.toLowerCase() !== 'male' && gender.toLowerCase() !== 'female') {
+      throw new BadRequestException('Gender must be male or female');
+    }
+
+    const roleObj = await this.roleModel.findOne(
+      {name: role}
+    )
+
+    console.log('Role >>>>>',roleObj._id)
+    const roleId = roleObj._id;
 
     const hashPassword = this.getHashPassword(password);
 
@@ -57,9 +73,9 @@ export class UsersService {
       password: hashPassword,
       name,
       age,
-      gender,
+      gender: gender.toUpperCase(),
       address,
-      role,
+      roleId
     });
 
     return newUser;

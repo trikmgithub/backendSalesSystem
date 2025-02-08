@@ -17,23 +17,24 @@ export class ItemsService {
   //--------------------POST /items
 
   //create new item
-  async createNewItem(createItemDto: CreateItemDto) {
-    const { name, price, description, brand } = createItemDto;
+  async createItem(createItemDto: CreateItemDto) {
+    const { name, price, description, brand, quantity } = createItemDto;
 
     const brandExist = await this.brandModel.findOne({ _id: brand });
 
     if (!brandExist) {
-      throw new BadRequestException('Brand khong ton tai');
+      throw new BadRequestException('Brand is not exist');
     }
 
-    const newItem = await this.itemModel.create({
+    const item = await this.itemModel.create({
       name,
       price,
       description,
       brand,
+      quantity
     });
 
-    return newItem;
+    return item;
   }
 
   //--------------------GET /items

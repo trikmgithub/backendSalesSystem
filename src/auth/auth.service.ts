@@ -89,14 +89,14 @@ export class AuthService {
       });
       let user = await this.usersService.findUserByToken(refreshToken);
       if (user) {
-        const { _id, name, email, role } = user;
+        const { _id, name, email, roleId } = user;
         const payload = {
           sub: 'token refresh',
           iss: 'from server',
           _id,
           name,
           email,
-          role,
+          roleId,
         };
         const refresh_token = this.createRefreshToken(payload);
         //update user with refresh token
@@ -113,7 +113,7 @@ export class AuthService {
             _id,
             name,
             email,
-            role,
+            roleId,
           },
         };
       } else {

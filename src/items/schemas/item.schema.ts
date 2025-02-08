@@ -19,7 +19,7 @@ export class Item {
   @Prop()
   quantity: number;
 
-  @Prop()
+  @Prop({ default: true })
   stock: boolean;
 
   @Prop()

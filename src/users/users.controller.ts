@@ -29,11 +29,9 @@ export class UsersController {
   @ResponseMessage('Register success')
   @Post('/register')
   async register(@Body() registerUserDto: RegisterUserDto) {
-    let newUser = await this.usersService.registerNewUser(registerUserDto);
-    console.log(newUser);
-    return {
-      newUser,
-    };
+    let user = await this.usersService.registerUser(registerUserDto);
+    
+    return user;
   }
 
   //create a new user by admin or manager or staff
