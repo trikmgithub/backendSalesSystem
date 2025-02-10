@@ -82,14 +82,13 @@ export class BrandsService {
       throw new BadRequestException("Id brand is not valid");
     }
 
-    const {name, description, items} = updateBrandDto;
+    const {name, description} = updateBrandDto;
 
     const brand = await this.brandModel.updateOne(
       {_id: id},
       {
         name: name.toUpperCase(),
         description: description.charAt(0).toUpperCase() + description.slice(1),
-        items
       }
     );
 

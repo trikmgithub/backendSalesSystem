@@ -10,9 +10,6 @@ export class Brand {
   @Prop()
   description: string;
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: Item.name }])
-  items: Item[];
-
   @Prop({ default: false })
   isDeleted: boolean;
 }

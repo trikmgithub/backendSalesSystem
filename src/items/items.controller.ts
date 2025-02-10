@@ -27,7 +27,7 @@ export class ItemsController {
   async createItem(@Body() createItemDto: CreateItemDto) {
     const item = await this.itemsService.createItem(createItemDto);
 
-    return item
+    return item;
   }
 
   //----------------GET /items
@@ -36,7 +36,9 @@ export class ItemsController {
   @Get('/all')
   @ResponseMessage("Get all items successfully")
   async getAllItems() {
+    const items = await this.itemsService.getAllItems();
 
+    return items;
   }
 
 
@@ -45,7 +47,7 @@ export class ItemsController {
   @ResponseMessage('Get all items with pagination successfully')
   @Get('/paginate')
   async getItemsPagination(@Query() paginationItemDto: PaginationItemDto) {
-    const paginateItem = await this.itemsService.getAllItems(paginationItemDto);
+    const paginateItem = await this.itemsService.getItemsPagination(paginationItemDto);
     return {
       paginateItem,
     };
@@ -68,14 +70,18 @@ export class ItemsController {
   @Patch(':id')
   @ResponseMessage("Update a item successfully")
   async updateOneItem(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+    const item = await this.itemsService.updateItem(id, updateItemDto)
 
+    return item;
   }
 
   //soft delete one item
   @Patch('/hide/:id')
   @ResponseMessage("Soft delete a item successfully")
   async hideOneItem(@Param('id') id: string) {
+    const item = await this.itemsService.hideItem(id);
 
+    return item;
   }
 
   //-------------------DELETE /items
@@ -84,6 +90,8 @@ export class ItemsController {
   @Delete(':id')
   @ResponseMessage("Delete a item successfully")
   async remove(@Param('id') id: string) {
+    const item = await this.itemsService.remove(id);
 
+    return item;
   }
 }

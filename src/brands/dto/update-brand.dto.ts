@@ -7,9 +7,4 @@ export class UpdateBrandDto {
 
   @IsNotEmpty({ message: 'Description khong duoc de trong' })
   description: string;
-
-  @IsNotEmpty({message: 'Items is not empty'})
-  @IsMongoId({each: true, message: 'Must be Mongo object id'})
-  @IsArray({message: 'Items must be array format'})
-  items: mongoose.Schema.Types.ObjectId[];
 }

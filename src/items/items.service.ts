@@ -57,13 +57,16 @@ export class ItemsService {
   }
 
   //get all items with pagination
-  async getAllItems(paginationItem: PaginationItemDto) {
+  async getItemsPagination(paginationItem: PaginationItemDto) {
     const page = paginationItem?.page ?? 1;
     const limit = paginationItem?.limit ?? 10;
 
     const skip = (page - 1) * limit;
 
-    const items = await this.itemModel.find().skip(skip).limit(limit).exec();
+    const items = await this.itemModel.find().populate({
+      path: 'brand',
+      select: 'name description',
+    }).skip(skip).limit(limit).exec();
 
     const total = await this.itemModel.countDocuments();
 
@@ -77,4 +80,76 @@ export class ItemsService {
       result: items,
     };
   }
+
+
+  //get all items
+  async getAllItems() {
+    const items = await this.itemModel.find().populate('brand', 'name description');
+    return items;
+  }
+
+  //-------------Patch /items
+
+  //update one item
+  async updateItem(id: string, updateItemDto: UpdateItemDto) {
+    if( !mongoose.Types.ObjectId.isValid(id) ) {
+      throw new BadRequestException("Id item is not valid");
+    }
+
+    const { brand, description, name, price, quantity} = updateItemDto;
+
+    const item = await this.itemModel.updateOne(
+      {_id: id},
+      {
+        name,
+        description,
+        brand,
+        price,
+        quantity
+      }
+    )
+
+    return item;
+  }
+
+  //soft delete one item
+  async hideItem(id: string) {
+    if( !mongoose.Types.ObjectId.isValid(id) ) {
+      throw new BadRequestException('Id item is not valid');
+    }
+
+    const item = await this.itemModel.findOne(
+      {_id: id}
+    );
+
+    let isHidden = item.isDeleted;
+
+    const itemUpdate = await this.itemModel.updateOne(
+      {_id: id},
+      {isDeleted: !isHidden}
+    )
+
+    return itemUpdate;
+  }
+
+  //---------------------DELETE /items
+
+  //delete item
+  async remove( id: string ) {
+    if ( !mongoose.Types.ObjectId.isValid(id) ) {
+      throw new BadRequestException('Id item is not valid');
+    }
+
+    const item = await this.itemModel.deleteOne(
+      {_id: id}
+    )
+
+    if (item.deletedCount === 0) {
+      throw new BadRequestException('Cannot delete item');
+    }
+
+    return item;
+  }
+
+
 }
