@@ -33,6 +33,7 @@ export class ItemsController {
   //----------------GET /items
 
   //get all items
+  @Public()
   @Get('/all')
   @ResponseMessage("Get all items successfully")
   async getAllItems() {
