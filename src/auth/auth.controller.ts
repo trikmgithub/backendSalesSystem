@@ -65,6 +65,7 @@ export class AuthController {
     return req.user;
   }
 
+  @Public()
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
   async googleLogin() {
@@ -72,6 +73,7 @@ export class AuthController {
     return { message: 'Redirecting to Google login...' };
   }
 
+  @Public()
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   handleLoginGoogle(@Req() req: Request) {

@@ -8,8 +8,8 @@ export class CreateItemDto {
   name: string;
 
   @IsNotEmpty({ message: 'Price is not empty' })
-  @Transform(({value}) => parseFloat(value))
-  @Min(0, {message: "Price must not be less than 0"})
+  @Transform(({ value }) => parseFloat(value))
+  @Min(0, { message: 'Price must not be less than 0' })
   price: number;
 
   @IsNotEmpty({ message: 'Description is not empty' })
@@ -20,7 +20,7 @@ export class CreateItemDto {
 
   @IsNotEmpty({ message: 'Quantity is not empty' })
   @Transform(({ value }) => parseInt(value, 10))
-  @IsInt({message: "Quantity must be an integer number"})
-  @Min(1, {message: "Quantity must not be less than 1"})
+  @IsInt({ message: 'Quantity must be an integer number' })
+  @Min(1, { message: 'Quantity must not be less than 1' })
   quantity: number;
 }

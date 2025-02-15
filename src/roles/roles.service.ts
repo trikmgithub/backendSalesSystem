@@ -44,10 +44,10 @@ export class RolesService {
 
   //get one role
   async getRole(id: string) {
-    if( !mongoose.Types.ObjectId.isValid(id) ) {
-      throw new BadRequestException("Id role is not valid");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Id role is not valid');
     }
-    
+
     const role = await this.roleModel.findById(id);
 
     return role;
@@ -58,7 +58,6 @@ export class RolesService {
     const roles = await this.roleModel.find();
 
     return roles;
-
   }
 
   //get roles with pagination
@@ -76,41 +75,41 @@ export class RolesService {
         numberRoles: total,
         totalPages: Math.ceil(total / limit),
       },
-      roles
-    }
+      roles,
+    };
   }
-  
+
   //---------------------PATCH /roles
 
   //update one role
   async updateOneRole(id: string, updateRoleDto: UpdateRoleDto) {
-    if ( !mongoose.Types.ObjectId.isValid(id) ) {
-      throw new BadRequestException("Id role is not valid");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Id role is not valid');
     }
 
     const { name, description, permissions } = updateRoleDto;
 
     const role = await this.roleModel.updateOne(
-      {_id: id},
+      { _id: id },
       {
-        name: name.toUpperCase(), 
-        description: description.charAt(0).toUpperCase() + description.slice(1), 
-        permissions
-      }
-    )
+        name: name.toUpperCase(),
+        description: description.charAt(0).toUpperCase() + description.slice(1),
+        permissions,
+      },
+    );
 
     return role;
   }
 
   //soft delete one role
-  async hideOneRole( id: string ) {
-    if( !mongoose.Types.ObjectId.isValid(id)) {
+  async hideOneRole(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id role is not valid');
     }
 
     const role = await this.roleModel.updateOne(
-      {_id: id}, 
-      {isDeleted: true}
+      { _id: id },
+      { isDeleted: true },
     );
 
     return role;
@@ -119,8 +118,8 @@ export class RolesService {
   //---------------------DELETE /roles
 
   //delete one role
-  async remove( id: string ) {
-    if( !mongoose.Types.ObjectId.isValid(id)) {
+  async remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id role is not valid');
     }
 

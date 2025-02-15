@@ -25,7 +25,6 @@ export class CreateUserDto {
 
   @IsNotEmpty({ message: 'Address không được để trống.' })
   address: string;
-
 }
 
 export class UserLoginDto {

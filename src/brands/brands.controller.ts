@@ -27,14 +27,14 @@ export class BrandsController {
   async createBrand(@Body() createBrandDto: CreateBrandDto) {
     const brand = await this.brandsService.createBrand(createBrandDto);
 
-    return brand; 
+    return brand;
   }
 
   //------------GET /brands
 
   //get all brands
   @Get('/all')
-  @ResponseMessage("Get all brands successfully")
+  @ResponseMessage('Get all brands successfully')
   async getAllBrands() {
     const brands = await this.brandsService.getAllBrands();
 
@@ -43,7 +43,7 @@ export class BrandsController {
 
   //get brands with pagination
   @Get('/paginate')
-  @ResponseMessage("Get brands with pagination successfully")
+  @ResponseMessage('Get brands with pagination successfully')
   async getBrandsPagination(@Query() paginationDto: PaginationDto) {
     const brands = await this.brandsService.getBrandsPagination(paginationDto);
 
@@ -52,7 +52,7 @@ export class BrandsController {
 
   //get one brand
   @Get(':id')
-  @ResponseMessage("Get one brand successfully")
+  @ResponseMessage('Get one brand successfully')
   async getBrand(@Param('id') id: string) {
     const brand = await this.brandsService.getBrand(id);
 
@@ -63,8 +63,11 @@ export class BrandsController {
 
   //update one brand
   @Patch(':id')
-  @ResponseMessage("Update a brand successfully")
-  async updateBrand(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
+  @ResponseMessage('Update a brand successfully')
+  async updateBrand(
+    @Param('id') id: string,
+    @Body() updateBrandDto: UpdateBrandDto,
+  ) {
     const brand = await this.brandsService.updateBrand(id, updateBrandDto);
 
     return brand;
@@ -72,7 +75,7 @@ export class BrandsController {
 
   //soft delete one brand
   @Patch('/hide/:id')
-  @ResponseMessage("Soft delete a brand successfully")
+  @ResponseMessage('Soft delete a brand successfully')
   async hideBrand(@Param('id') id: string) {
     const brand = await this.brandsService.hideBrand(id);
 
@@ -83,11 +86,10 @@ export class BrandsController {
 
   //delete brand
   @Delete(':id')
-  @ResponseMessage("Delete a brand successfully")
+  @ResponseMessage('Delete a brand successfully')
   async remove(@Param('id') id: string) {
     const brand = await this.brandsService.remove(id);
 
     return brand;
   }
-
 }

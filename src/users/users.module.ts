@@ -8,7 +8,7 @@ import { Role, RoleSchema } from 'src/roles/schemas/role.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema}])
+    MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
   ],
   controllers: [UsersController],
   providers: [UsersService],

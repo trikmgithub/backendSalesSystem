@@ -9,6 +9,9 @@ import { ItemsModule } from './items/items.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { BrandsModule } from './brands/brands.module';
+import { MomoModule } from './momo/momo.module';
+import { ZalopayModule } from './zalopay/zalopay.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { BrandsModule } from './brands/brands.module';
     PermissionsModule,
     RolesModule,
     BrandsModule,
+    MomoModule,
+    ZalopayModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

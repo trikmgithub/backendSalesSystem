@@ -33,7 +33,7 @@ export class RolesController {
 
   //get all roles
   @Get('/all')
-  @ResponseMessage("Get all roles successfully")
+  @ResponseMessage('Get all roles successfully')
   async getAllRoles() {
     const roles = await this.rolesService.getAllRoles();
 
@@ -42,7 +42,7 @@ export class RolesController {
 
   //get roles with pagination
   @Get('/paginate')
-  @ResponseMessage("Get roles with pagination successfully")
+  @ResponseMessage('Get roles with pagination successfully')
   async getRolesPagination(@Query() paginationDto: PaginationDto) {
     const roles = await this.rolesService.getRolesPagination(paginationDto);
 
@@ -51,7 +51,7 @@ export class RolesController {
 
   //get one role
   @Get(':id')
-  @ResponseMessage("Get one role successfully") 
+  @ResponseMessage('Get one role successfully')
   async getRole(@Param('id') id: string) {
     const role = await this.rolesService.getRole(id);
 
@@ -62,8 +62,11 @@ export class RolesController {
 
   //update one role
   @Patch(':id')
-  @ResponseMessage("Update a role successfully")
-  async updateRole(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
+  @ResponseMessage('Update a role successfully')
+  async updateRole(
+    @Param('id') id: string,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
     const role = await this.rolesService.updateOneRole(id, updateRoleDto);
 
     return role;
@@ -71,10 +74,10 @@ export class RolesController {
 
   //soft delete one role
   @Patch('/hide/:id')
-  @ResponseMessage("Soft delete a role successfully")
+  @ResponseMessage('Soft delete a role successfully')
   async hideRole(@Param('id') id: string) {
     const role = await this.rolesService.hideOneRole(id);
-    
+
     return role;
   }
 
@@ -82,7 +85,7 @@ export class RolesController {
 
   //delete one role
   @Delete(':id')
-  @ResponseMessage("Delete a role successfully")
+  @ResponseMessage('Delete a role successfully')
   async remove(@Param('id') id: string) {
     const role = await this.rolesService.remove(id);
 

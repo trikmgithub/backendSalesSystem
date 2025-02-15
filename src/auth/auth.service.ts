@@ -26,12 +26,8 @@ export class AuthService {
   }
 
   async validateGoogleUser(details: any) {
-    console.log('AuthService');
-    console.log(details);
     const user = await this.usersService.findOneByUsername(details.email);
-    console.log(user);
     if (user) return user;
-    console.log('User not found. Creating...');
     const newUser = this.usersService.createGoogleUser(details);
     return newUser;
   }

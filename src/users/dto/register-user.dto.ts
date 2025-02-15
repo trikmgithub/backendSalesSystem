@@ -11,13 +11,12 @@ export class RegisterUserDto {
   @IsNotEmpty({ message: 'Name không được để trống. ' })
   name: string;
 
-  @IsNotEmpty({message: 'dateOfBirth is not empty. '})
+  @IsNotEmpty({ message: 'dateOfBirth is not empty. ' })
   dateOfBirth: Date;
 
-  @IsNotEmpty({message: 'Gender is not empty. '})
+  @IsNotEmpty({ message: 'Gender is not empty. ' })
   gender: string;
 
-  @IsNotEmpty({message: 'Address is not empty.'})
+  @IsNotEmpty({ message: 'Address is not empty.' })
   address: string;
-
 }

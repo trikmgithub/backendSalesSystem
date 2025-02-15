@@ -50,20 +50,16 @@ export class UsersService {
     const isExist = await this.userModel.findOne({ email });
 
     if (isExist) {
-      throw new BadRequestException(
-        `Email: ${email} is existed.`,
-      );
+      throw new BadRequestException(`Email: ${email} is existed.`);
     }
 
     if (gender.toLowerCase() !== 'male' && gender.toLowerCase() !== 'female') {
       throw new BadRequestException('Gender must be male or female');
     }
 
-    const roleObj = await this.roleModel.findOne(
-      {name: role}
-    )
+    const roleObj = await this.roleModel.findOne({ name: role });
 
-    console.log('Role >>>>>',roleObj._id)
+    console.log('Role >>>>>', roleObj._id);
     const roleId = roleObj._id;
 
     const hashPassword = this.getHashPassword(password);
@@ -75,7 +71,7 @@ export class UsersService {
       dateOfBirth,
       gender: gender.toUpperCase(),
       address,
-      roleId
+      roleId,
     });
 
     return newUser;
@@ -83,7 +79,8 @@ export class UsersService {
 
   //create a new user by admin or manager or staff
   async createNewUser(createUserDto: CreateUserDto, @User() user: IUser) {
-    const { email, password, name, dateOfBirth, gender, address, role } = createUserDto;
+    const { email, password, name, dateOfBirth, gender, address, role } =
+      createUserDto;
 
     const isExist = await this.userModel.findOne({ email });
 
@@ -141,7 +138,9 @@ export class UsersService {
       throw new BadRequestException('Invalid user ID');
     }
 
-    const userInfo = (await this.userModel.findOne({ _id: id }).select("-password")).populate({path: "role", select: {_id: 1, name: 1}});
+    const userInfo = (
+      await this.userModel.findOne({ _id: id }).select('-password')
+    ).populate({ path: 'role', select: { _id: 1, name: 1 } });
     return userInfo;
   }
 

@@ -25,6 +25,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     // Trích xuất thông tin từ profile trả về bởi Google
     const { name, emails, photos } = profile;
+
     const user = {
       email: emails?.[0]?.value || null, // Đảm bảo an toàn khi không có email
       firstName: name?.givenName || null,

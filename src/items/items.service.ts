@@ -31,7 +31,7 @@ export class ItemsService {
       price,
       description,
       brand,
-      quantity
+      quantity,
     });
 
     return item;
@@ -63,10 +63,15 @@ export class ItemsService {
 
     const skip = (page - 1) * limit;
 
-    const items = await this.itemModel.find().populate({
-      path: 'brand',
-      select: 'name description',
-    }).skip(skip).limit(limit).exec();
+    const items = await this.itemModel
+      .find()
+      .populate({
+        path: 'brand',
+        select: 'name description',
+      })
+      .skip(skip)
+      .limit(limit)
+      .exec();
 
     const total = await this.itemModel.countDocuments();
 
@@ -81,10 +86,11 @@ export class ItemsService {
     };
   }
 
-
   //get all items
   async getAllItems() {
-    const items = await this.itemModel.find().populate('brand', 'name description');
+    const items = await this.itemModel
+      .find()
+      .populate('brand', 'name description');
     return items;
   }
 
@@ -92,42 +98,40 @@ export class ItemsService {
 
   //update one item
   async updateItem(id: string, updateItemDto: UpdateItemDto) {
-    if( !mongoose.Types.ObjectId.isValid(id) ) {
-      throw new BadRequestException("Id item is not valid");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Id item is not valid');
     }
 
-    const { brand, description, name, price, quantity} = updateItemDto;
+    const { brand, description, name, price, quantity } = updateItemDto;
 
     const item = await this.itemModel.updateOne(
-      {_id: id},
+      { _id: id },
       {
         name,
         description,
         brand,
         price,
-        quantity
-      }
-    )
+        quantity,
+      },
+    );
 
     return item;
   }
 
   //soft delete one item
   async hideItem(id: string) {
-    if( !mongoose.Types.ObjectId.isValid(id) ) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id item is not valid');
     }
 
-    const item = await this.itemModel.findOne(
-      {_id: id}
-    );
+    const item = await this.itemModel.findOne({ _id: id });
 
     let isHidden = item.isDeleted;
 
     const itemUpdate = await this.itemModel.updateOne(
-      {_id: id},
-      {isDeleted: !isHidden}
-    )
+      { _id: id },
+      { isDeleted: !isHidden },
+    );
 
     return itemUpdate;
   }
@@ -135,14 +139,12 @@ export class ItemsService {
   //---------------------DELETE /items
 
   //delete item
-  async remove( id: string ) {
-    if ( !mongoose.Types.ObjectId.isValid(id) ) {
+  async remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id item is not valid');
     }
 
-    const item = await this.itemModel.deleteOne(
-      {_id: id}
-    )
+    const item = await this.itemModel.deleteOne({ _id: id });
 
     if (item.deletedCount === 0) {
       throw new BadRequestException('Cannot delete item');
@@ -150,6 +152,4 @@ export class ItemsService {
 
     return item;
   }
-
-
 }
