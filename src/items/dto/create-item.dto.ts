@@ -23,4 +23,6 @@ export class CreateItemDto {
   @IsInt({ message: 'Quantity must be an integer number' })
   @Min(1, { message: 'Quantity must not be less than 1' })
   quantity: number;
+
+  flashSale: boolean
 }

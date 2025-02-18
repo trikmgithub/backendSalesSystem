@@ -4,6 +4,7 @@ import { ItemsController } from './items.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Item, ItemSchema } from './schemas/item.schema';
 import { Brand, BrandSchema } from 'src/brands/shemas/brand.schema';
+import { FilesModule } from 'src/files/files.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { Brand, BrandSchema } from 'src/brands/shemas/brand.schema';
       { name: Item.name, schema: ItemSchema },
       { name: Brand.name, schema: BrandSchema },
     ]),
+    FilesModule,
   ],
   controllers: [ItemsController],
   providers: [ItemsService],

@@ -18,7 +18,8 @@ export class ZalopayService {
     const transID = Math.floor(Math.random() * 1000000);
     const currentDate = new Date();
     const formattedDate = `${currentDate.getFullYear().toString().slice(-2)}${(
-      '0' + (currentDate.getMonth() + 1)
+      '0' +
+      (currentDate.getMonth() + 1)
     ).slice(-2)}${('0' + currentDate.getDate()).slice(-2)}`;
 
     const order: any = {

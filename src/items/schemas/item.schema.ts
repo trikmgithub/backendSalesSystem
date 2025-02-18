@@ -8,7 +8,13 @@ export class Item {
   name: string;
 
   @Prop()
+  imageUrls: string[];
+
+  @Prop()
   price: number;
+
+  @Prop()
+  flashSale: boolean;
 
   @Prop()
   description: string;

@@ -8,26 +8,59 @@ import {
   Delete,
   Query,
   Res,
+  UploadedFile,
+  UseInterceptors,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { PaginationItemDto } from './dto/pagination-item.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesService } from 'src/files/files.service';
 
 @Controller('items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
+  constructor(
+    private readonly itemsService: ItemsService,
+    private readonly filesService: FilesService,
+  ) {}
 
   //-----------------POST /items
 
   //create item
   @Post('/create')
+  @UseInterceptors(FilesInterceptor('files', 3))
   @ResponseMessage('Create new item successfully')
-  async createItem(@Body() createItemDto: CreateItemDto) {
-    const item = await this.itemsService.createItem(createItemDto);
+  async createItem(
+    @Body() createItemDto: CreateItemDto,
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 6000 * 1024, //mb
+          }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+        ],
+      }),
+    )
+    files: Array<Express.Multer.File>,
+  ) {
+    try {
+      const filesInfo = await this.filesService.uploadFiles(files);
 
-    return item;
+      const imageUrls = filesInfo.map(file => file.secure_url);
+
+      const item = await this.itemsService.createItem(createItemDto, imageUrls);
+
+      return item;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   //----------------GET /items

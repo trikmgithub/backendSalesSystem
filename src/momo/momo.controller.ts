@@ -16,7 +16,7 @@ export class MomoController {
   @Redirect()
   async payRedirect(@Query('amount') amount: number) {
     const payUrl = await this.momoService.createPayment(amount);
-    return { url: payUrl };  // tự động chuyển hướng tới payUrl
+    return { url: payUrl }; // tự động chuyển hướng tới payUrl
   }
 
   @Get('success')

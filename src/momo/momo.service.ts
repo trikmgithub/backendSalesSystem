@@ -63,7 +63,7 @@ export class MomoService {
 
       // Nếu thành công, trả về payUrl để người dùng redirect
       if (response.data && response.data.payUrl) {
-        return response.data.payUrl;  // trả về payUrl để redirect người dùng
+        return response.data.payUrl; // trả về payUrl để redirect người dùng
       } else {
         throw new Error('Không có payUrl trong phản hồi');
       }

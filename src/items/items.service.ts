@@ -17,8 +17,8 @@ export class ItemsService {
   //--------------------POST /items
 
   //create new item
-  async createItem(createItemDto: CreateItemDto) {
-    const { name, price, description, brand, quantity } = createItemDto;
+  async createItem(createItemDto: CreateItemDto, imageUrls: string[]) {
+    const { name, price, description, brand, quantity, flashSale } = createItemDto;
 
     const brandExist = await this.brandModel.findOne({ _id: brand });
 
@@ -32,6 +32,8 @@ export class ItemsService {
       description,
       brand,
       quantity,
+      imageUrls,
+      flashSale
     });
 
     return item;
