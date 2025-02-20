@@ -19,7 +19,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
 
   handleRequest(err: any, user: any, info: any) {
     if (err || !user) {
-      throw err || new UnauthorizedException('Token không hợp lệ');
+      throw err || new UnauthorizedException('Unauthorized');
     }
     return user;
   }

@@ -8,6 +8,7 @@ import { IUser } from 'src/users/interface/users.interface';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from 'src/users/dto/create-user.dto';
 import { Response } from 'express';
+import { access } from 'fs';
 
 @ApiTags('Auth Module')
 @Controller('auth')
@@ -75,9 +76,18 @@ export class AuthController {
 
   @Public()
   @Get('google/redirect')
+  @ResponseMessage('Login success')
   @UseGuards(GoogleAuthGuard)
-  handleLoginGoogle(@Req() req: Request) {
+  async handleLoginGoogle(@Req() req: Request) {
     // req.user sẽ chứa thông tin người dùng đã được Google trả về
-    return this.authService.validateGoogleUser(req.user);
+    const user = await this.authService.createGoogleUser(req.user);
+
+    return {
+      access_token: user.access_token,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+    };
   }
 }

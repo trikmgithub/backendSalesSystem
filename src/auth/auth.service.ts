@@ -15,7 +15,7 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByUsername(username);
+    const user = await this.usersService.findOneByEmail(username);
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
@@ -25,11 +25,31 @@ export class AuthService {
     return null;
   }
 
-  async validateGoogleUser(details: any) {
-    const user = await this.usersService.findOneByUsername(details.email);
-    if (user) return user;
-    const newUser = this.usersService.createGoogleUser(details);
-    return newUser;
+  async createGoogleUser(details: any) {
+    const user = await this.usersService.findOneByEmail(details.email);
+
+    if (user?.password) {
+      throw new BadRequestException('Email nay da co trong he thong hay login bang email va password')
+    }
+
+    if (user) {
+      return {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        access_token: details.accessToken
+      };
+    }
+      
+    const newUser = await this.usersService.createGoogleUser(details);
+    return {
+      _id: user._id,
+      email: newUser.email,
+      name: newUser.name,
+      avatar: newUser.avatar,
+      access_token: details.accessToken,
+    };
   }
 
   //---------------------------------Login

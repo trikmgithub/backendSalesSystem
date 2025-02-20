@@ -113,14 +113,14 @@ export class UsersService {
   async createGoogleUser(googleUserInfo: any) {
     let user = await this.userModel.create({
       email: googleUserInfo.email,
-      name: googleUserInfo.firstName + ' ' + googleUserInfo.lastName,
-      accessToken: googleUserInfo.accessToken,
+      name: googleUserInfo.name,
+      avatar: googleUserInfo.avatar
     });
 
     return user;
   }
 
-  findOneByUsername(username: string) {
+  findOneByEmail(username: string) {
     return this.userModel.findOne({
       email: username,
     });
