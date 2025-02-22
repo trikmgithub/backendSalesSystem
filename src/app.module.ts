@@ -12,6 +12,7 @@ import { BrandsModule } from './brands/brands.module';
 import { MomoModule } from './momo/momo.module';
 import { ZalopayModule } from './zalopay/zalopay.module';
 import { FilesModule } from './files/files.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { FilesModule } from './files/files.module';
     MomoModule,
     ZalopayModule,
     FilesModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
