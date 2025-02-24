@@ -5,6 +5,7 @@ import { IUser } from 'src/users/interface/users.interface';
 import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from 'express';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private rolesService: RolesService
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -38,7 +40,8 @@ export class AuthService {
         email: user.email,
         name: user.name,
         avatar: user.avatar,
-        access_token: details.accessToken
+        access_token: details.accessToken,
+        role: 'CUSTOMER'  
       };
     }
       
@@ -49,6 +52,8 @@ export class AuthService {
       name: newUser.name,
       avatar: newUser.avatar,
       access_token: details.accessToken,
+      role: 'CUSTOMER'  
+
     };
   }
 
@@ -73,12 +78,14 @@ export class AuthService {
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
     });
 
+    const getUser = await this.usersService.findOneByEmail(email);
+    const getRole = await this.rolesService.getRole(getUser.roleId.toString());
     return {
       access_token: this.jwtService.sign(payload),
       _id,
       name,
       email,
-      role,
+      role: getRole.name,
     };
   }
 

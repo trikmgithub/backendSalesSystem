@@ -22,7 +22,7 @@ export class RolesService {
     const isExist = await this.roleModel.findOne({ name });
 
     if (isExist) {
-      throw new BadRequestException(`Role is existed`);
+      throw new BadRequestException(`Role ${name} is existed`);
     }
 
     if (!permissions.every((id) => mongoose.isValidObjectId(id))) {

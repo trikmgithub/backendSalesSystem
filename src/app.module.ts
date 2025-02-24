@@ -13,6 +13,7 @@ import { MomoModule } from './momo/momo.module';
 import { ZalopayModule } from './zalopay/zalopay.module';
 import { FilesModule } from './files/files.module';
 import { EmailModule } from './email/email.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { EmailModule } from './email/email.module';
     ZalopayModule,
     FilesModule,
     EmailModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

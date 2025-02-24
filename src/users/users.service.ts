@@ -50,16 +50,15 @@ export class UsersService {
     const isExist = await this.userModel.findOne({ email });
 
     if (isExist) {
-      throw new BadRequestException(`Email: ${email} is existed.`);
+      throw new BadRequestException(`Email: ${email} đã tồn tại trong hệ thống.`);
     }
 
     if (gender.toLowerCase() !== 'male' && gender.toLowerCase() !== 'female') {
-      throw new BadRequestException('Gender must be male or female');
+      throw new BadRequestException('Gender phải là male hoặc female');
     }
 
     const roleObj = await this.roleModel.findOne({ name: role });
 
-    console.log('Role >>>>>', roleObj._id);
     const roleId = roleObj._id;
 
     const hashPassword = this.getHashPassword(password);
@@ -90,6 +89,13 @@ export class UsersService {
       );
     }
 
+    if (gender.toLowerCase() !== 'male' && gender.toLowerCase() !== 'female') {
+      throw new BadRequestException('Gender phải là male hoặc female');
+    }
+    const roleObj = await this.roleModel.findOne({ name: role.toUpperCase() });
+
+    const roleId = roleObj._id;
+
     const hashPassword = this.getHashPassword(password);
 
     let newUser = await this.userModel.create({
@@ -97,9 +103,9 @@ export class UsersService {
       password: hashPassword,
       name,
       dateOfBirth,
-      gender,
+      gender: gender.toUpperCase(),
       address,
-      role,
+      roleId: roleId,
       createdBy: {
         _id: user._id,
         email: user.email,
@@ -111,10 +117,15 @@ export class UsersService {
 
   //save google user
   async createGoogleUser(googleUserInfo: any) {
+    const role = 'CUSTOMER';
+    const roleObj = await this.roleModel.findOne({ name: role.toUpperCase() });
+
+    const roleId = roleObj._id;
     let user = await this.userModel.create({
       email: googleUserInfo.email,
       name: googleUserInfo.name,
-      avatar: googleUserInfo.avatar
+      avatar: googleUserInfo.avatar,
+      roleId: roleId,
     });
 
     return user;
@@ -140,7 +151,8 @@ export class UsersService {
 
     const userInfo = (
       await this.userModel.findOne({ _id: id }).select('-password')
-    ).populate({ path: 'role', select: { _id: 1, name: 1 } });
+    ).populate({ path: 'roleId', select: { _id: 1, name: 1 } });
+
     return userInfo;
   }
 
