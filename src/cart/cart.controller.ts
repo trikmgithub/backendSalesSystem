@@ -7,28 +7,23 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartService.create(createCartDto);
+  //------------POST /cart
+
+  //create new cart
+  @Post('/create')
+  async createCart(@Body() createCartDto: CreateCartDto) {
+    const cart = await this.cartService.createCart(createCartDto);
+
+    return cart;
   }
 
-  @Get()
-  findAll() {
-    return this.cartService.findAll();
+  @Get('user/:userId')
+  async getUserCarts(@Param('userId') userId: string) {
+    return this.cartService.getCartsByUserId(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartService.update(+id, updateCartDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartService.remove(+id);
+  @Patch(':cartId')
+  async updateCartStatus(@Param('cartId') cartId: string, @Body() updateData: any) {
+    return this.cartService.updateCart(cartId, updateData);
   }
 }
