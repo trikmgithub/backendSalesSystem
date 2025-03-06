@@ -3,6 +3,7 @@ import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         },
       }),
     }),
+    UsersModule
   ],
   controllers: [EmailController],
   providers: [EmailService],

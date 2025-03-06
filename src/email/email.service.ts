@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class EmailService {
   private otpStorage = new Map<string, string>(); // Lưu OTP tạm thời trong bộ nhớ RAM của server
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly userService: UsersService,
+  
+  ) {}
 
   // Tạo mã OTP 6 chữ số
   generateOTP(): string {
@@ -20,13 +25,20 @@ export class EmailService {
 
   // Gửi OTP qua email
   async sendOTP(email: string) {
+
+    const isExisted = this.userService.findOneByEmail(email);
+
+    if (isExisted) {
+      throw new BadRequestException('Email is existed');
+    }
+
     const otp = this.generateOTP();
     this.saveOTP(email, otp);
 
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: 'Your OTP Code',
+        subject: 'Your Beauty Skin OTP Code',
         text: `Your OTP code is: ${otp}`,
         html: `<p>Your OTP code is: <strong>${otp}</strong></p>`,
       });
