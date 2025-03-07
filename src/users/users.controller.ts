@@ -98,6 +98,23 @@ export class UsersController {
     };
   }
 
+  //update user address
+  @Patch('/address')
+  @ResponseMessage('Update user address success')
+  async updateAddress(@Body() updateUserAddress: { email: string; address: string }, @User() user: IUser) {
+    const updateUser = await this.usersService.updateAddress(updateUserAddress, user);
+    return updateUser;
+  }
+
+  //update user password
+  @Patch('/password')
+  @ResponseMessage('Update user password success')
+  async updatePassword(@Body() updateUserPassword: {
+  email: string; password: string; newPassword: string }, @User() user: IUser) {
+      const updateUser = await this.usersService.updatePassword(updateUserPassword, user);
+      return updateUser;
+  }
+
   //-----------------------------DELETE /users
 
   //delete a user

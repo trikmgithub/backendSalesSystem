@@ -131,16 +131,6 @@ export class UsersService {
     return user;
   }
 
-  findOneByEmail(username: string) {
-    return this.userModel.findOne({
-      email: username,
-    });
-  }
-
-  isValidPassword(password: string, hash: string) {
-    return bcrypt.compareSync(password, hash);
-  }
-
   //-------------------------------------GET /users
 
   //get one user with id
@@ -214,6 +204,70 @@ export class UsersService {
     return deleteUser;
   }
 
+  //update user address
+  async updateAddress(updateUserAddress: {email: string; address: string}, user: IUser) {
+    const { email, address } = updateUserAddress;
+
+    const isExisted = await this.userModel.findOne({ email });
+
+    if (!isExisted) {
+      throw new BadRequestException('User không tồn tại');
+    } 
+
+    const updatedUser = await this.userModel.updateOne(
+      { email },
+      {
+        address,
+        updatedAt: new Date(),
+        updatedBy: {
+          _id: user?._id,
+          email: user?.email
+        }
+      },
+    );
+
+    return updatedUser;
+  }
+
+  //update user password
+  async updatePassword(updateUserPassword: {email: string; password: string; newPassword: string}, user: IUser) {
+    const { email, password, newPassword } = updateUserPassword;
+    
+    const isExisted = await this.userModel.findOne({email});
+
+    let hashNewPassword = null;
+
+    if ( !isExisted ) {
+      throw new BadRequestException("Invalid user email")
+    }
+
+    if ( !isExisted.password ) {
+      throw new BadRequestException("You login by Google!")
+    }
+
+    const isCorrectPass = this.isValidPassword(password, isExisted.password);
+
+    if (isCorrectPass) {
+      hashNewPassword = this.getHashPassword(newPassword);
+    } else {
+      throw new BadRequestException('Old password is not correct!');
+    }
+
+    const updateUser = await this.userModel.updateOne(
+      {email},
+      {
+        password: hashNewPassword,
+        updatedAt: new Date(),
+        updatedBy: {
+          _id: user?._id,
+          email: user?.email
+        }
+      }
+    )
+
+    return updateUser;
+  }
+
   //-----------------------------DELETE /users
 
   //delete a user
@@ -226,4 +280,16 @@ export class UsersService {
 
     return deleteUser;
   }
+
+  //---------------------------Other functions
+  findOneByEmail(username: string) {
+    return this.userModel.findOne({
+      email: username,
+    });
+  }
+
+  isValidPassword(password: string, hash: string) {
+    return bcrypt.compareSync(password, hash);
+  }
+  
 }
