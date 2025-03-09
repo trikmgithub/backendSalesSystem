@@ -6,9 +6,9 @@ import { Cart, CartSchema } from './schemas/cart.schema';
 
 @Module({
   imports: [
-      MongooseModule.forFeature([{ name: Cart.name, schema: CartSchema }]),
-    ],
+    MongooseModule.forFeature([{ name: Cart.name, schema: CartSchema }]),
+  ],
   controllers: [CartController],
-  providers: [CartService]
+  providers: [CartService],
 })
 export class CartModule {}

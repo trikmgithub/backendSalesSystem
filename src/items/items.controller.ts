@@ -53,7 +53,7 @@ export class ItemsController {
     try {
       const filesInfo = await this.filesService.uploadFiles(files);
 
-      const imageUrls = filesInfo.map(file => file.secure_url);
+      const imageUrls = filesInfo.map((file) => file.secure_url);
 
       const item = await this.itemsService.createItem(createItemDto, imageUrls);
 

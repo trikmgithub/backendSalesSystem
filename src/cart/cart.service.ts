@@ -10,7 +10,7 @@ export class CartService {
   constructor(
     @InjectModel(CartModel.name) private cartModel: Model<CartModel>,
   ) {}
-  
+
   //----------------POST /cart
   //create new cart
   async createCart(createCartDto: CreateCartDto) {

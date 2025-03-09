@@ -19,24 +19,8 @@ export class UsersService {
     @InjectModel(RoleModel.name) private roleModel: Model<RoleModel>,
   ) {}
 
-  //------------------config
-  //get user by refreshtoken
-  findUserByToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken });
-  };
-
-  //update token
-  updateUserToken = async (refreshToken: string, _id: string) => {
-    return await this.userModel.updateOne({ _id }, { refreshToken });
-  };
-
-  //hash password
-  getHashPassword = (password: string) => {
-    const saltRounds = 10;
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const hash = bcrypt.hashSync(password, salt);
-    return hash;
-  };
+  //------------------------CONSTANTS
+  static readonly ROLE_USER = 'user';
 
   //------------------------POST /users
 
@@ -45,19 +29,21 @@ export class UsersService {
     const { email, password, name, dateOfBirth, gender, address } =
       registerUserDto;
 
-    const role = 'CUSTOMER';
+    const role = UsersService.ROLE_USER;
 
     const isExist = await this.userModel.findOne({ email });
 
     if (isExist) {
-      throw new BadRequestException(`Email: ${email} đã tồn tại trong hệ thống.`);
+      throw new BadRequestException(
+        `Email: ${email} đã tồn tại trong hệ thống.`,
+      );
     }
 
     if (gender.toLowerCase() !== 'male' && gender.toLowerCase() !== 'female') {
       throw new BadRequestException('Gender phải là male hoặc female');
     }
 
-    const roleObj = await this.roleModel.findOne({ name: role });
+    const roleObj = await this.roleModel.findOne({ name: role.toUpperCase() });
 
     const roleId = roleObj._id;
 
@@ -141,7 +127,7 @@ export class UsersService {
 
     const userInfo = (
       await this.userModel.findOne({ _id: id }).select('-password')
-    ).populate({ path: 'roleId', select: { _id: 1, name: 1 } });
+    );
 
     return userInfo;
   }
@@ -205,14 +191,17 @@ export class UsersService {
   }
 
   //update user address
-  async updateAddress(updateUserAddress: {email: string; address: string}, user: IUser) {
+  async updateAddress(
+    updateUserAddress: { email: string; address: string },
+    user: IUser,
+  ) {
     const { email, address } = updateUserAddress;
 
     const isExisted = await this.userModel.findOne({ email });
 
     if (!isExisted) {
       throw new BadRequestException('User không tồn tại');
-    } 
+    }
 
     const updatedUser = await this.userModel.updateOne(
       { email },
@@ -221,8 +210,8 @@ export class UsersService {
         updatedAt: new Date(),
         updatedBy: {
           _id: user?._id,
-          email: user?.email
-        }
+          email: user?.email,
+        },
       },
     );
 
@@ -230,19 +219,26 @@ export class UsersService {
   }
 
   //update user password
-  async updatePassword(updateUserPassword: {email: string; password: string; newPassword: string}, user: IUser) {
+  async updatePassword(
+    updateUserPassword: {
+      email: string;
+      password: string;
+      newPassword: string;
+    },
+    user: IUser,
+  ) {
     const { email, password, newPassword } = updateUserPassword;
-    
-    const isExisted = await this.userModel.findOne({email});
+
+    const isExisted = await this.userModel.findOne({ email });
 
     let hashNewPassword = null;
 
-    if ( !isExisted ) {
-      throw new BadRequestException("Invalid user email")
+    if (!isExisted) {
+      throw new BadRequestException('Invalid user email');
     }
 
-    if ( !isExisted.password ) {
-      throw new BadRequestException("You login by Google!")
+    if (!isExisted.password) {
+      throw new BadRequestException('You login by Google!');
     }
 
     const isCorrectPass = this.isValidPassword(password, isExisted.password);
@@ -254,16 +250,16 @@ export class UsersService {
     }
 
     const updateUser = await this.userModel.updateOne(
-      {email},
+      { email },
       {
         password: hashNewPassword,
         updatedAt: new Date(),
         updatedBy: {
           _id: user?._id,
-          email: user?.email
-        }
-      }
-    )
+          email: user?.email,
+        },
+      },
+    );
 
     return updateUser;
   }
@@ -282,14 +278,36 @@ export class UsersService {
   }
 
   //---------------------------Other functions
-  findOneByEmail(username: string) {
-    return this.userModel.findOne({
-      email: username,
-    });
+
+  async findOneByEmail(username: string) {
+    const user = this.userModel.findOne({ email: username });
+    return user;
   }
 
   isValidPassword(password: string, hash: string) {
     return bcrypt.compareSync(password, hash);
   }
+
+  //get user by refreshtoken
+  async findUserByToken(refreshToken: string) {
+    const data = await this.userModel.findOne({ refreshToken }).select('-password');
+    
+    return data;
+  };
+
   
+
+  //update token
+  updateUserToken = async (refreshToken: string, _id: string) => {
+    const update = await this.userModel.updateOne({ _id }, { refreshToken });
+    return update;
+  };
+
+  //hash password
+  getHashPassword = (password: string) => {
+    const saltRounds = 10;
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+    return hash;
+  };
 }

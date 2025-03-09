@@ -18,7 +18,8 @@ export class ItemsService {
 
   //create new item
   async createItem(createItemDto: CreateItemDto, imageUrls: string[]) {
-    const { name, price, description, brand, quantity, flashSale } = createItemDto;
+    const { name, price, description, brand, quantity, flashSale } =
+      createItemDto;
 
     const brandExist = await this.brandModel.findOne({ _id: brand });
 
@@ -33,7 +34,7 @@ export class ItemsService {
       brand,
       quantity,
       imageUrls,
-      flashSale
+      flashSale,
     });
 
     return item;

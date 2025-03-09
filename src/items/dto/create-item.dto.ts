@@ -24,5 +24,5 @@ export class CreateItemDto {
   @Min(1, { message: 'Quantity must not be less than 1' })
   quantity: number;
 
-  flashSale: boolean
+  flashSale: boolean;
 }

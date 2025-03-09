@@ -7,6 +7,6 @@ import { ConfigModule } from '@nestjs/config';
   imports: [ConfigModule],
   controllers: [PayosController],
   providers: [PayosService],
-  exports: [PayosService]
+  exports: [PayosService],
 })
 export class PayosModule {}

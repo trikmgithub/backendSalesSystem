@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Redirect, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Redirect,
+  Res,
+} from '@nestjs/common';
 import { PayosService } from './payos.service';
 import { CreatePayoDto } from './dto/create-payo.dto';
 import { UpdatePayoDto } from './dto/update-payo.dto';
@@ -16,7 +26,10 @@ export class PayosController {
 
   @Public()
   @Post('create-payment-link')
-  async createPaymentLink(@Body() createPayoDto: CreatePayoDto, @Res() res: Response) {
+  async createPaymentLink(
+    @Body() createPayoDto: CreatePayoDto,
+    @Res() res: Response,
+  ) {
     try {
       const paymentLink = await this.payosService.create(createPayoDto);
       return res.redirect(paymentLink.checkoutUrl);

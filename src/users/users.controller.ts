@@ -54,9 +54,7 @@ export class UsersController {
   @ResponseMessage('Get one user by id successfully')
   async getOneUser(@Param('id') id: string) {
     const userInfo = await this.usersService.getOneUsers(id);
-    return {
-      userInfo,
-    };
+    return userInfo;
   }
 
   //get all users with pagination
@@ -64,9 +62,7 @@ export class UsersController {
   @ResponseMessage('Get all users with pagination successfully')
   async getAllUsers(@Query() paginationDto: PaginationDto) {
     const paginateUser = await this.usersService.getAllUsers(paginationDto);
-    return {
-      paginateUser,
-    };
+    return paginateUser;
   }
 
   //find one user by id
@@ -83,9 +79,7 @@ export class UsersController {
       updateUserDto,
       user,
     );
-    return {
-      updateUser,
-    };
+    return updateUser;
   }
 
   //soft delete a user
@@ -93,26 +87,40 @@ export class UsersController {
   @ResponseMessage('Soft delete user success')
   async softDeleteOneUser(@Param('id') id: string, @User() user: IUser) {
     const deleteUser = await this.usersService.softDeleteOneUser(id, user);
-    return {
-      deleteUser,
-    };
+    return deleteUser;
   }
 
   //update user address
   @Patch('/address')
   @ResponseMessage('Update user address success')
-  async updateAddress(@Body() updateUserAddress: { email: string; address: string }, @User() user: IUser) {
-    const updateUser = await this.usersService.updateAddress(updateUserAddress, user);
+  async updateAddress(
+    @Body() updateUserAddress: { email: string; address: string },
+    @User() user: IUser,
+  ) {
+    const updateUser = await this.usersService.updateAddress(
+      updateUserAddress,
+      user,
+    );
     return updateUser;
   }
 
   //update user password
   @Patch('/password')
   @ResponseMessage('Update user password success')
-  async updatePassword(@Body() updateUserPassword: {
-  email: string; password: string; newPassword: string }, @User() user: IUser) {
-      const updateUser = await this.usersService.updatePassword(updateUserPassword, user);
-      return updateUser;
+  async updatePassword(
+    @Body()
+    updateUserPassword: {
+      email: string;
+      password: string;
+      newPassword: string;
+    },
+    @User() user: IUser,
+  ) {
+    const updateUser = await this.usersService.updatePassword(
+      updateUserPassword,
+      user,
+    );
+    return updateUser;
   }
 
   //-----------------------------DELETE /users

@@ -127,4 +127,18 @@ export class RolesService {
 
     return role;
   }
+
+  //---------------------EXTERNAL
+
+  //find role name by id
+  async getNameRoleById(id: any) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Id role is not valid');
+    }
+    const roleName = await this.roleModel.findById(id).select('name');
+    if (!roleName) {
+      throw new BadRequestException('Role Id is not existed');
+    }
+    return roleName;
+  }
 }

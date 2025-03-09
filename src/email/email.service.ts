@@ -9,7 +9,6 @@ export class EmailService {
   constructor(
     private readonly mailerService: MailerService,
     private readonly userService: UsersService,
-  
   ) {}
 
   // Tạo mã OTP 6 chữ số
@@ -25,7 +24,6 @@ export class EmailService {
 
   // Gửi OTP qua email
   async sendOTP(email: string) {
-
     const isExisted = this.userService.findOneByEmail(email);
 
     if (isExisted) {

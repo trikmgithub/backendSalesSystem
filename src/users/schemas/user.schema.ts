@@ -13,7 +13,7 @@ export class User {
   password: string;
 
   @Prop()
-  avatar: string
+  avatar: string;
 
   @Prop()
   name: string;

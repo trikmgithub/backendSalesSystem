@@ -7,35 +7,37 @@ export type CartDocument = Cart & Document;
 
 @Schema({ timestamps: true })
 export class Cart {
-  @Prop({ 
-    type: MongooseSchema.Types.ObjectId, 
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
     ref: User.name,
-    required: true
+    required: true,
   })
   userId: MongooseSchema.Types.ObjectId;
 
-  @Prop([{
-    itemId: { type: MongooseSchema.Types.ObjectId, ref: Item.name },
-    quantity: { type: Number },
-    price: { type: Number },
-    _id: false,
-  }])
+  @Prop([
+    {
+      itemId: { type: MongooseSchema.Types.ObjectId, ref: Item.name },
+      quantity: { type: Number },
+      price: { type: Number },
+      _id: false,
+    },
+  ])
   items: {
     itemId: MongooseSchema.Types.ObjectId;
     quantity: number;
     price: number;
   }[];
 
-  @Prop({ default: 0 }) 
+  @Prop({ default: 0 })
   totalAmount: number;
 
   @Prop()
   status: string;
 
-  @Prop() 
+  @Prop()
   paymentMethod: string;
 
-  @Prop({ default: Date.now }) 
+  @Prop({ default: Date.now })
   purchaseDate: Date;
 }
 

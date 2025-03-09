@@ -13,7 +13,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private rolesService: RolesService
+    private rolesService: RolesService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -31,7 +31,9 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(details.email);
 
     if (user?.password) {
-      throw new BadRequestException('Email nay da co trong he thong hay login bang email va password')
+      throw new BadRequestException(
+        'Email nay da co trong he thong hay login bang email va password',
+      );
     }
 
     if (user) {
@@ -41,52 +43,64 @@ export class AuthService {
         name: user.name,
         avatar: user.avatar,
         access_token: details.accessToken,
-        role: 'CUSTOMER'  
+        role: 'CUSTOMER',
       };
     }
-      
+
     const newUser = await this.usersService.createGoogleUser(details);
+
+    const roleOfUser = await this.rolesService.getNameRoleById(newUser.roleId);
+
     return {
-      _id: user._id,
+      _id: newUser._id,
       email: newUser.email,
       name: newUser.name,
       avatar: newUser.avatar,
       access_token: details.accessToken,
-      role: 'CUSTOMER'  
-
+      role: roleOfUser.name,
     };
   }
 
   //---------------------------------Login
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role } = user;
-    const payload = {
-      sub: 'token login',
-      iss: 'from server',
-      _id,
-      name,
-      email,
-      role,
-    };
+    try {
+      const { _id, name, email, roleId } = user;
 
-    const refresh_token = this.createRefreshToken(payload);
+      let getRole = await this.rolesService.getRole(roleId.toString());
 
-    await this.usersService.updateUserToken(refresh_token, _id);
+      const payload = {
+        sub: 'token login',
+        iss: 'from server',
+        _id,
+        name,
+        email,
+        role: getRole.name,
+      };
 
-    response.cookie('refresh_token', refresh_token, {
-      httpOnly: false,
-      maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
-    });
+      const refresh_token = this.createRefreshToken(payload);
 
-    const getUser = await this.usersService.findOneByEmail(email);
-    const getRole = await this.rolesService.getRole(getUser.roleId.toString());
-    return {
-      access_token: this.jwtService.sign(payload),
-      _id,
-      name,
-      email,
-      role: getRole.name,
-    };
+      await this.usersService.updateUserToken(refresh_token, _id);
+
+      response.cookie('refresh_token', refresh_token, {
+        httpOnly: true,
+        maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
+      });
+
+      const getUser = await this.usersService.findOneByEmail(email);
+      getRole = await this.rolesService.getRole(getUser.roleId.toString());
+
+      const data = {
+        access_token: this.jwtService.sign(payload),
+        _id,
+        name,
+        email,
+        role: getRole.name,
+      };
+
+      return data;
+    } catch (error) {
+      console.log('Error at auth.service/login: ', error);
+    }
   }
 
   //----------------------------------Logout
@@ -96,6 +110,8 @@ export class AuthService {
 
     return 'ok';
   };
+
+  //-----------------------------------Token
 
   createRefreshToken = (payload: any) => {
     const refresh_token = this.jwtService.sign(payload, {
@@ -114,13 +130,16 @@ export class AuthService {
       let user = await this.usersService.findUserByToken(refreshToken);
       if (user) {
         const { _id, name, email, roleId } = user;
+        const roleObject = await this.rolesService.getRole(roleId.toString());
+        const role = roleObject.name;
+        console.log('user', user)
         const payload = {
           sub: 'token refresh',
           iss: 'from server',
           _id,
           name,
           email,
-          roleId,
+          role,
         };
         const refresh_token = this.createRefreshToken(payload);
         //update user with refresh token
@@ -137,7 +156,7 @@ export class AuthService {
             _id,
             name,
             email,
-            roleId,
+            role,
           },
         };
       } else {

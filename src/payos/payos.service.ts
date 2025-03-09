@@ -17,8 +17,9 @@ export class PayosService {
 
   async create(createPayoDto: CreatePayoDto) {
     try {
-      const orderCode = createPayoDto.orderCode || Number(String(Date.now()).slice(-6));
-      
+      const orderCode =
+        createPayoDto.orderCode || Number(String(Date.now()).slice(-6));
+
       const paymentBody = {
         orderCode,
         amount: createPayoDto.amount,
@@ -28,7 +29,9 @@ export class PayosService {
         cancelUrl: createPayoDto.cancelUrl,
       };
 
-      const paymentLinkResponse = await this.payOS.createPaymentLink(paymentBody);
+      const paymentLinkResponse = await this.payOS.createPaymentLink(
+        paymentBody,
+      );
       return paymentLinkResponse;
     } catch (error) {
       throw error;

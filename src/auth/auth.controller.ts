@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Req, UseGuards, Res } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { AuthService } from './auth.service';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
@@ -7,18 +7,23 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { IUser } from 'src/users/interface/users.interface';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from 'src/users/dto/create-user.dto';
-import { Response } from 'express';
-import { access } from 'fs';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Auth Module')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  //---------------------------------------POST: /auth/
 
   //---------------------------------------Logout: auth/logout
   @ResponseMessage('Logout User')
   @Post('/logout')
   handleLogout(
+    //passthrough: block auto response (redirect ...)
     @Res({ passthrough: true }) response: Response,
     @User() user: IUser,
   ) {
@@ -42,6 +47,8 @@ export class AuthController {
     return this.authService.login(user, response);
   }
 
+  //---------------------------------------GET: /auth/
+
   //---------------------------------------Get user information: auth/account
   @ResponseMessage('Get user information')
   @Get('/account')
@@ -53,12 +60,18 @@ export class AuthController {
   @Public()
   @ResponseMessage('Get User by refresh token')
   @Get('/refresh')
-  handleRefreshToken(
+  async handleRefreshToken(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
     const refreshToken = request.cookies['refresh_token'];
-    return this.authService.processNewToken(refreshToken, response);
+    console.log('refreshToken: ', refreshToken);
+    const newRefreshToken = await this.authService.processNewToken(
+      refreshToken,
+      response,
+    );
+    console.log('new refresh token: ', newRefreshToken);
+    return newRefreshToken;
   }
 
   @Get('profile')
@@ -78,11 +91,11 @@ export class AuthController {
   @Get('google/redirect')
   @ResponseMessage('Login success')
   @UseGuards(GoogleAuthGuard)
-  async handleLoginGoogle(@Req() req: Request) {
+  async handleLoginGoogle(@Req() req: Request, @Res() res: Response) {
     // req.user sẽ chứa thông tin người dùng đã được Google trả về
     const user = await this.authService.createGoogleUser(req.user);
 
-    return {
+    const userInfo = {
       access_token: user.access_token,
       _id: user._id,
       name: user.name,
@@ -90,5 +103,11 @@ export class AuthController {
       avatar: user.avatar,
       role: user.role,
     };
+    const frontendGlobalUri = this.configService.get<string>(
+      'FRONTEND_GLOBAL_URI',
+    );
+    const frontendLocalUri =
+      this.configService.get<string>('FRONTEND_LOCAL_URI');
+    return res.redirect(encodeURI(frontendGlobalUri));
   }
 }

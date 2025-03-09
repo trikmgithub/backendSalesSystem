@@ -24,10 +24,14 @@ async function bootstrap() {
   //config cors
   app.enableCors({
     // origin: '*',
-    origin: ['http://localhost:3000', 'https://www.kieuminhtri.site'],
-    credentials: false, // Cho phép gửi cookie
+    origin: [
+      configService.get<string>('FRONTEND_LOCAL_URI'),
+      configService.get<string>('FRONTEND_GLOBAL_URI'),
+    ],
+    credentials: true, // Cho phép gửi cookie
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
+    // preflightContinue: true, //default: false
+    // "optionsSuccessStatus": 204
   });
 
   //config swagger

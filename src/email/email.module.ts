@@ -21,10 +21,10 @@ import { UsersModule } from 'src/users/users.module';
         },
       }),
     }),
-    UsersModule
+    UsersModule,
   ],
   controllers: [EmailController],
   providers: [EmailService],
-  exports: [EmailService]
+  exports: [EmailService],
 })
 export class EmailModule {}
