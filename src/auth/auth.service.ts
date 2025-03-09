@@ -29,37 +29,71 @@ export class AuthService {
 
   async createGoogleUser(details: any) {
     const user = await this.usersService.findOneByEmail(details.email);
-
+  
     if (user?.password) {
       throw new BadRequestException(
-        'Email nay da co trong he thong hay login bang email va password',
+        'Email này đã có trong hệ thống, hãy login bằng email và password',
       );
     }
-
+  
+    let userData;
+    
     if (user) {
-      return {
+      const role = await this.rolesService.getRole(user.roleId.toString());
+      userData = {
         _id: user._id,
         email: user.email,
         name: user.name,
         avatar: user.avatar,
-        access_token: details.accessToken,
-        role: 'CUSTOMER',
+        role: role.name,
+      };
+    } else {
+      const newUser = await this.usersService.createGoogleUser(details);
+      const roleOfUser = await this.rolesService.getNameRoleById(newUser.roleId);
+      userData = {
+        _id: newUser._id,
+        email: newUser.email,
+        name: newUser.name,
+        avatar: newUser.avatar,
+        role: roleOfUser.name,
       };
     }
-
-    const newUser = await this.usersService.createGoogleUser(details);
-
-    const roleOfUser = await this.rolesService.getNameRoleById(newUser.roleId);
-
+  
+    // Tạo JWT payload
+    const payload = {
+      sub: userData._id,
+      email: userData.email,
+      name: userData.name,
+      role: userData.role,
+      iss: 'from server',
+    };
+  
+    // Tạo access token
+    const access_token = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+      expiresIn: ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) / 1000,
+    });
+  
+    // Tạo refresh token
+    const refresh_token = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) / 1000,
+    });
+  
+    // Lưu refresh token vào database
+    await this.usersService.updateUserToken(refresh_token, userData._id);
+  
     return {
-      _id: newUser._id,
-      email: newUser.email,
-      name: newUser.name,
-      avatar: newUser.avatar,
-      access_token: details.accessToken,
-      role: roleOfUser.name,
+      _id: userData._id,
+      email: userData.email,
+      name: userData.name,
+      avatar: userData.avatar,
+      access_token: access_token,
+      refresh_token: refresh_token,
+      role: userData.role
     };
   }
+  
 
   //---------------------------------Login
   async login(user: IUser, response: Response) {

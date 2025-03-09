@@ -10,13 +10,14 @@ import { IUser } from './interface/users.interface';
 import { User } from 'src/decorator/customize';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { PaginationDto } from './dto/pagination-user.dto';
-import { Mode } from 'fs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserModel.name) private userModel: Model<UserModel>,
     @InjectModel(RoleModel.name) private roleModel: Model<RoleModel>,
+    private readonly configService: ConfigService,
   ) {}
 
   //------------------------CONSTANTS
@@ -103,15 +104,15 @@ export class UsersService {
 
   //save google user
   async createGoogleUser(googleUserInfo: any) {
-    const role = 'CUSTOMER';
+    const role = this.configService.get<string>("DEFAULT_ROLE");
     const roleObj = await this.roleModel.findOne({ name: role.toUpperCase() });
-
     const roleId = roleObj._id;
+
     let user = await this.userModel.create({
       email: googleUserInfo.email,
       name: googleUserInfo.name,
       avatar: googleUserInfo.avatar,
-      roleId: roleId,
+      roleId,
     });
 
     return user;

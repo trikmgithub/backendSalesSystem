@@ -8,6 +8,7 @@ import { IUser } from 'src/users/interface/users.interface';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from 'src/users/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
+import ms from 'ms';
 
 @ApiTags('Auth Module')
 @Controller('auth')
@@ -92,22 +93,34 @@ export class AuthController {
   @ResponseMessage('Login success')
   @UseGuards(GoogleAuthGuard)
   async handleLoginGoogle(@Req() req: Request, @Res() res: Response) {
-    // req.user sẽ chứa thông tin người dùng đã được Google trả về
-    const user = await this.authService.createGoogleUser(req.user);
+    try {
+      // Xử lý thông tin người dùng từ Google
+      const user = await this.authService.createGoogleUser(req.user);
+  
+      // Đặt refresh token vào cookie
+      res.cookie('refresh_token', user.refresh_token, {
+        httpOnly: true,
+        maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
+        sameSite: 'lax',
+      });
+  
+      // Tạo redirect URL với access token và thông tin user cơ bản
+      const frontendUri = this.configService.get<string>('FRONTEND_URI');
+      const userInfo = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+      };
 
-    const userInfo = {
-      access_token: user.access_token,
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-    };
-    const frontendGlobalUri = this.configService.get<string>(
-      'FRONTEND_GLOBAL_URI',
-    );
-    const frontendLocalUri =
-      this.configService.get<string>('FRONTEND_LOCAL_URI');
-    return res.redirect(encodeURI(frontendGlobalUri));
+      const redirectUrl = `${frontendUri}?access_token=${user.access_token}&user=${encodeURIComponent(JSON.stringify(userInfo))}`;
+      
+      return res.redirect(encodeURI(redirectUrl));
+    } catch (error) {
+      console.error('Error in Google login:', error);
+      const frontendUri = this.configService.get<string>('FRONTEND_URI');
+      return res.redirect(`${frontendUri}/login?error=Google login failed`);
+    }
   }
 }
