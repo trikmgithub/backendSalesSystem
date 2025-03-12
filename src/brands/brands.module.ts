@@ -10,5 +10,6 @@ import { Brand, BrandSchema } from './shemas/brand.schema';
   ],
   controllers: [BrandsController],
   providers: [BrandsService],
+  exports: [BrandsService]
 })
 export class BrandsModule {}

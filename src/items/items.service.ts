@@ -6,6 +6,7 @@ import mongoose, { Model } from 'mongoose';
 import { Item as ItemModel } from './schemas/item.schema';
 import { Brand as BrandModel } from 'src/brands/shemas/brand.schema';
 import { PaginationItemDto } from './dto/pagination-item.dto';
+import Fuse from 'fuse.js';
 
 @Injectable()
 export class ItemsService {
@@ -89,6 +90,24 @@ export class ItemsService {
     };
   }
 
+  //get fuzzy items by brand name
+  async getFuzzyItems(name: string) {
+
+    const items = await this.itemModel.find().populate('brand', 'name');
+
+    const fuse = new Fuse(items, {
+      keys: ['name', 'brand.name'],
+      threshold: 0.3, 
+      distance: 100,   
+      ignoreLocation: true, 
+    });
+    const results = fuse.search(name);
+
+    const itemsFilter = results.map(result => result.item);
+
+    return itemsFilter;
+  }
+
   //get all items
   async getAllItems() {
     const items = await this.itemModel
@@ -96,6 +115,8 @@ export class ItemsService {
       .populate('brand', 'name description');
     return items;
   }
+
+  
 
   //-------------Patch /items
 

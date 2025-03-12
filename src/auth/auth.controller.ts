@@ -71,7 +71,6 @@ export class AuthController {
       refreshToken,
       response,
     );
-    console.log('new refresh token: ', newRefreshToken);
     return newRefreshToken;
   }
 

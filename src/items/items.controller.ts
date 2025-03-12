@@ -34,7 +34,7 @@ export class ItemsController {
 
   //create item
   @Post('/create')
-  @UseInterceptors(FilesInterceptor('files', 3))
+  @UseInterceptors(FilesInterceptor('files', 3)) //max 3 files
   @ResponseMessage('Create new item successfully')
   async createItem(
     @Body() createItemDto: CreateItemDto,
@@ -44,6 +44,7 @@ export class ItemsController {
           new MaxFileSizeValidator({
             maxSize: 6000 * 1024, //mb
           }),
+          //allow only png, jpeg, jpg
           new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
         ],
       }),
@@ -88,6 +89,15 @@ export class ItemsController {
     };
   }
 
+  //get fuzzy items by brand name
+  @ResponseMessage('Get fuzzy items successfully')
+  @Get('/fuzzy/:name')
+  async getFuzzyItems(@Param('name') name: string) {
+    const items = await this.itemsService.getFuzzyItems(name);
+
+    return items;
+  }
+
   //get one item
   @ResponseMessage('Get item successfully')
   @Get('/:id')
@@ -98,6 +108,8 @@ export class ItemsController {
       item,
     };
   }
+
+  
 
   //-------------------PATCH /items
 

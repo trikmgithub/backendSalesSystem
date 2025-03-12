@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Brand as BrandModel } from './shemas/brand.schema';
 import mongoose, { Model, mongo } from 'mongoose';
 import { PaginationDto } from './dto/pagination-brand.dto';
+import Fuse from 'fuse.js'
 
 @Injectable()
 export class BrandsService {
@@ -62,8 +63,8 @@ export class BrandsService {
     };
   }
 
-  //get one brand
-  async getBrand(id: string) {
+  //get one brand by id
+  async getBrandById(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Id brand is not valid');
     }
@@ -71,6 +72,37 @@ export class BrandsService {
     const brand = await this.brandModel.findById(id);
 
     return brand;
+  }
+
+  //get one brand by name
+  async getBrandByName(name: string) {
+    // 'i' means no diffrent between uppercase and lowercase
+    const brand = await this.brandModel.findOne({ name: { $regex: name, $options: 'i' }});
+
+    if (!brand) {
+      throw new BadRequestException('Not found brand by name');
+    }
+
+    return brand;
+  }
+
+  //get one brand by approximate name matching
+  async getFuzzyBrandsByName(name: string) {
+    const brands = await this.brandModel.find();
+    // Cấu hình Fuse.js
+    const fuse = new Fuse(brands, {
+      keys: ['name'],   // Tìm kiếm theo trường "name"
+      threshold: 0.3,   // Độ chính xác (thấp hơn = chính xác hơn, cao hơn = chấp nhận sai nhiều hơn)
+      distance: 100,    // Khoảng cách tối đa để tìm kết quả gần đúng
+      ignoreLocation: true, // Bỏ qua vị trí của từ khóa trong chuỗi
+    });
+    // Thực hiện tìm kiếm
+    const results = fuse.search(name);
+
+    // Trả về danh sách thương hiệu phù hợp
+    const brandsFilter = results.map(result => result.item);
+
+    return brandsFilter;
   }
 
   //---------------PATCH /brands

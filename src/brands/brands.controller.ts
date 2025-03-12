@@ -50,11 +50,29 @@ export class BrandsController {
     return brands;
   }
 
-  //get one brand
+  //get one brand by name
+  @Get('/name/:name')
+  @ResponseMessage('Get one brand successfully')
+  async getBrandByName(@Param('name') name: string) {
+    const brand = await this.brandsService.getBrandByName(name);
+
+    return brand;
+  }
+
+  //get one brand by approximate name matching
+  @Get('/fuzzy/:name')
+  @ResponseMessage('Get approximate brand matching')
+  async getFuzzyBrandsByName(@Param('name') name: string) {
+    const brands = await this.brandsService.getFuzzyBrandsByName(name);
+
+    return brands;
+  }
+
+  //get one brand by id
   @Get(':id')
   @ResponseMessage('Get one brand successfully')
-  async getBrand(@Param('id') id: string) {
-    const brand = await this.brandsService.getBrand(id);
+  async getBrandById(@Param('id') id: string) {
+    const brand = await this.brandsService.getBrandById(id);
 
     return brand;
   }
