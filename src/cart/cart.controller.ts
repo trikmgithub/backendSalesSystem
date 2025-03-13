@@ -10,6 +10,7 @@ import {
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('cart')
 export class CartController {
@@ -18,6 +19,7 @@ export class CartController {
   //------------POST /cart
 
   //create new cart
+  @ApiExcludeEndpoint()
   @Post('/create/')
   async createCart(@Body() createCartDto: CreateCartDto) {
     const cart = await this.cartService.createCart(createCartDto);
