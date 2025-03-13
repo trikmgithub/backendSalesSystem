@@ -95,14 +95,14 @@ export class AuthController {
     try {
       // Xử lý thông tin người dùng từ Google
       const user = await this.authService.createGoogleUser(req.user);
-  
+
       // Đặt refresh token vào cookie
       res.cookie('refresh_token', user.refresh_token, {
         httpOnly: true,
         maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
         sameSite: 'lax',
       });
-  
+
       // Tạo redirect URL với access token và thông tin user cơ bản
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
       const userInfo = {
@@ -113,8 +113,10 @@ export class AuthController {
         role: user.role,
       };
 
-      const redirectUrl = `${frontendUri}?access_token=${user.access_token}&user=${encodeURIComponent(JSON.stringify(userInfo))}`;
-      
+      const redirectUrl = `${frontendUri}?access_token=${
+        user.access_token
+      }&user=${encodeURIComponent(JSON.stringify(userInfo))}`;
+
       return res.redirect(encodeURI(redirectUrl));
     } catch (error) {
       console.error('Error in Google login:', error);

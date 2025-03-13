@@ -14,7 +14,7 @@ import { BrandsModule } from 'src/brands/brands.module';
       { name: Brand.name, schema: BrandSchema },
     ]),
     FilesModule,
-    BrandsModule
+    BrandsModule,
   ],
   controllers: [ItemsController],
   providers: [ItemsService],

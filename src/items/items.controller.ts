@@ -109,8 +109,6 @@ export class ItemsController {
     };
   }
 
-  
-
   //-------------------PATCH /items
 
   //update one item

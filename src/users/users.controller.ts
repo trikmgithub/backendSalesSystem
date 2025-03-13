@@ -65,7 +65,13 @@ export class UsersController {
     return paginateUser;
   }
 
-  //find one user by id
+  //get cart
+  @Get('/cart/:id')
+  @ResponseMessage('Get cart user by id user successfully')
+  async getCartByUserId(@Param('id') id: string) {
+    const carts = await this.usersService.getCartByUserId(id);
+    return carts;
+  }
 
   //------------------------PATCH /users
 

@@ -10,7 +10,6 @@ export class Cart {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: User.name,
-    required: true,
   })
   userId: MongooseSchema.Types.ObjectId;
 
@@ -19,7 +18,6 @@ export class Cart {
       itemId: { type: MongooseSchema.Types.ObjectId, ref: Item.name },
       quantity: { type: Number },
       price: { type: Number },
-      _id: false,
     },
   ])
   items: {
@@ -39,6 +37,12 @@ export class Cart {
 
   @Prop({ default: Date.now })
   purchaseDate: Date;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
+
+  @Prop()
+  deleteAt: Date;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);

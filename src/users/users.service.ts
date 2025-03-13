@@ -104,7 +104,7 @@ export class UsersService {
 
   //save google user
   async createGoogleUser(googleUserInfo: any) {
-    const role = this.configService.get<string>("DEFAULT_ROLE");
+    const role = this.configService.get<string>('DEFAULT_ROLE');
     const roleObj = await this.roleModel.findOne({ name: role.toUpperCase() });
     const roleId = roleObj._id;
 
@@ -126,9 +126,9 @@ export class UsersService {
       throw new BadRequestException('Invalid user ID');
     }
 
-    const userInfo = (
-      await this.userModel.findOne({ _id: id }).select('-password')
-    );
+    const userInfo = await this.userModel
+      .findOne({ _id: id })
+      .select('-password');
 
     return userInfo;
   }
@@ -151,6 +151,28 @@ export class UsersService {
         totalPages: Math.ceil(total / limit),
       },
       result: users,
+    };
+  }
+
+  //get cart by user id
+  async getCartByUserId(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Id user is not valid');
+    }
+
+    const userInfo = await this.userModel.findById(id);
+
+    if (!userInfo) {
+      throw new BadRequestException('Id user is not existed');
+    }
+
+    const cartInfo = await this.userModel.findById(id).populate('carts');
+
+    return {
+      "userId": cartInfo._id,
+      "userEmail": cartInfo.email,
+      "userName": cartInfo.name,
+      "userCarts": cartInfo.carts
     };
   }
 
@@ -265,6 +287,28 @@ export class UsersService {
     return updateUser;
   }
 
+  //update user cart 
+  async updateUserCart(userId: any, cartId: any) {
+    if (!mongoose.Types.ObjectId.isValid(cartId)) {
+      throw new BadRequestException('Cart id is not existed');
+    }
+
+    const userInfo = await this.userModel.findById(userId);
+    
+    if (!userInfo) {
+      throw new BadRequestException('User id is not existed');
+    }
+
+    // Cập nhật user với cartId mới (push vào mảng carts)
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      userId,
+      { $addToSet: { carts: cartId } }, // Đảm bảo không bị trùng lặp
+      { new: true, runValidators: true }
+  );
+
+    return updatedUser;
+  }
+
   //-----------------------------DELETE /users
 
   //delete a user
@@ -291,12 +335,12 @@ export class UsersService {
 
   //get user by refreshtoken
   async findUserByToken(refreshToken: string) {
-    const data = await this.userModel.findOne({ refreshToken }).select('-password');
-    
-    return data;
-  };
+    const data = await this.userModel
+      .findOne({ refreshToken })
+      .select('-password');
 
-  
+    return data;
+  }
 
   //update token
   updateUserToken = async (refreshToken: string, _id: string) => {

@@ -18,13 +18,16 @@ export class CartController {
   //------------POST /cart
 
   //create new cart
-  @Post('/create')
+  @Post('/create/')
   async createCart(@Body() createCartDto: CreateCartDto) {
     const cart = await this.cartService.createCart(createCartDto);
 
     return cart;
   }
 
+  //------------GET /cart/user/:userId
+
+  //get cart
   @Get('user/:userId')
   async getUserCarts(@Param('userId') userId: string) {
     return this.cartService.getCartsByUserId(userId);

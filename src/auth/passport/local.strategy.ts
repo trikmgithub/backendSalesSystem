@@ -7,7 +7,7 @@ import { UsersService } from 'src/users/users.service';
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
     private authService: AuthService,
-    private userService: UsersService
+    private userService: UsersService,
   ) {
     super();
   }

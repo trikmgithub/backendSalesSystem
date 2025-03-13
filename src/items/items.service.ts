@@ -92,18 +92,17 @@ export class ItemsService {
 
   //get fuzzy items by brand name
   async getFuzzyItems(name: string) {
-
     const items = await this.itemModel.find().populate('brand', 'name');
 
     const fuse = new Fuse(items, {
       keys: ['name', 'brand.name'],
-      threshold: 0.3, 
-      distance: 100,   
-      ignoreLocation: true, 
+      threshold: 0.3,
+      distance: 100,
+      ignoreLocation: true,
     });
     const results = fuse.search(name);
 
-    const itemsFilter = results.map(result => result.item);
+    const itemsFilter = results.map((result) => result.item);
 
     return itemsFilter;
   }
@@ -115,8 +114,6 @@ export class ItemsService {
       .populate('brand', 'name description');
     return items;
   }
-
-  
 
   //-------------Patch /items
 

@@ -29,15 +29,15 @@ export class AuthService {
 
   async createGoogleUser(details: any) {
     const user = await this.usersService.findOneByEmail(details.email);
-  
+
     if (user?.password) {
       throw new BadRequestException(
         'Email này đã có trong hệ thống, hãy login bằng email và password',
       );
     }
-  
+
     let userData;
-    
+
     if (user) {
       const role = await this.rolesService.getRole(user.roleId.toString());
       userData = {
@@ -49,7 +49,9 @@ export class AuthService {
       };
     } else {
       const newUser = await this.usersService.createGoogleUser(details);
-      const roleOfUser = await this.rolesService.getNameRoleById(newUser.roleId);
+      const roleOfUser = await this.rolesService.getNameRoleById(
+        newUser.roleId,
+      );
       userData = {
         _id: newUser._id,
         email: newUser.email,
@@ -58,7 +60,7 @@ export class AuthService {
         role: roleOfUser.name,
       };
     }
-  
+
     // Tạo JWT payload
     const payload = {
       sub: userData._id,
@@ -67,22 +69,23 @@ export class AuthService {
       role: userData.role,
       iss: 'from server',
     };
-  
+
     // Tạo access token
     const access_token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) / 1000,
     });
-  
+
     // Tạo refresh token
     const refresh_token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) / 1000,
+      expiresIn:
+        ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) / 1000,
     });
-  
+
     // Lưu refresh token vào database
     await this.usersService.updateUserToken(refresh_token, userData._id);
-  
+
     return {
       _id: userData._id,
       email: userData.email,
@@ -90,10 +93,9 @@ export class AuthService {
       avatar: userData.avatar,
       access_token: access_token,
       refresh_token: refresh_token,
-      role: userData.role
+      role: userData.role,
     };
   }
-  
 
   //---------------------------------Login
   async login(user: IUser, response: Response) {
@@ -166,7 +168,7 @@ export class AuthService {
         const { _id, name, email, roleId } = user;
         const roleObject = await this.rolesService.getRole(roleId.toString());
         const role = roleObject.name;
-        console.log('user', user)
+        console.log('user', user);
         const payload = {
           sub: 'token refresh',
           iss: 'from server',
