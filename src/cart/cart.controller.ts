@@ -27,14 +27,28 @@ export class CartController {
     return cart;
   }
 
-  //------------GET /cart/user/:userId
+  //------------GET /cart
+
+  //get all cart
+  @Get('all')
+  async getAllCarts() {
+    return await this.cartService.getAllCarts();
+  }
+
+  //get all carts is pending
+  @Get('pending')
+  async getCartsPending() {
+    return await this.cartService.getCartsPending();
+  }
 
   //get cart
   @Get('user/:userId')
   async getUserCarts(@Param('userId') userId: string) {
-    return this.cartService.getCartsByUserId(userId);
+    return await this.cartService.getCartsByUserId(userId);
   }
 
+
+  //-----------PATCH /cart
   @Patch(':cartId')
   async updateCartStatus(
     @Param('cartId') cartId: string,
