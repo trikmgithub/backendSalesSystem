@@ -19,4 +19,6 @@ export class EmailController {
   verifyOtp(@Body('email') email: string, @Body('otp') otp: string) {
     return this.emailService.verifyOTP(email, otp);
   }
+
+  
 }

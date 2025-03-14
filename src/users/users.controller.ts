@@ -47,6 +47,17 @@ export class UsersController {
     };
   }
 
+  // forget password
+  @Public()
+  @Post('forget-password')
+  async forgetPassword(
+    @Body('email') email: string, 
+    @Body('password') password: string, 
+    @Body('recheck') recheck: string
+  ) {
+    return await this.usersService.forgetPassword(email, password, recheck)
+  }
+
   //------------------------GET /users
 
   //get one user by id

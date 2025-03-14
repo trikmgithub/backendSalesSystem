@@ -89,6 +89,7 @@ export class ItemsController {
     };
   }
 
+  @Public()
   //get fuzzy items by brand name
   @ResponseMessage('Get fuzzy items successfully')
   @Get('/fuzzy/:name')
@@ -98,6 +99,7 @@ export class ItemsController {
     return items;
   }
 
+  @Public()
   //get one item
   @ResponseMessage('Get item successfully')
   @Get('/:id')

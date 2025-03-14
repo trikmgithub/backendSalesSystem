@@ -19,12 +19,12 @@ export class EmailService {
   // Lưu OTP vào bộ nhớ tạm thời
   saveOTP(email: string, otp: string) {
     this.otpStorage.set(email, otp);
-    setTimeout(() => this.otpStorage.delete(email), 5 * 60 * 1000); // Hết hạn sau 5 phút
+    setTimeout(() => this.otpStorage.delete(email), 1 * 60 * 1000); // Hết hạn sau 1 phút
   }
 
   // Gửi OTP qua email
   async sendOTP(email: string) {
-    const isExisted = this.userService.findOneByEmail(email);
+    const isExisted = await this.userService.findOneByEmail(email);
 
     if (isExisted) {
       throw new BadRequestException('Email is existed');
@@ -55,4 +55,6 @@ export class EmailService {
     }
     return { success: false, message: 'Invalid or expired OTP' };
   }
+
+  
 }

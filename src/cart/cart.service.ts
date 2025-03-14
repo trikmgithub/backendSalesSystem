@@ -37,6 +37,11 @@ export class CartService {
     return await this.cartModel.find({ status: 'pending' });
   }
 
+  //get carts is done
+  async getCartsDone() {
+    return await this.cartModel.find({ status: 'done'});
+  }
+ 
   async getCartsByUserId(userId: string): Promise<CartModel[]> {
     return this.cartModel.find({ userId }).populate('items.itemId');
   }

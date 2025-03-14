@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -239,6 +239,36 @@ export class UsersService {
     );
 
     return updatedUser;
+  }
+
+  //forget password
+  async forgetPassword(email: string, password: string, recheck: string) {
+    const isExisted = await this.findOneByEmail(email)
+
+    let hashNewPassword = null;
+
+    if (!isExisted) {
+      throw new BadRequestException('Invalid user email/ this email is not register');
+    }
+
+    if (!isExisted.password) {
+      throw new BadRequestException('You login by Google!');
+    }
+
+    if (password != recheck) {
+      throw new BadRequestException('Password and Confirm password again is not same');
+    }
+
+    if (password) {
+      hashNewPassword = this.getHashPassword(password);
+    }
+
+    const updatePassword = await this.userModel.updateOne(
+      { email },
+      { password: hashNewPassword },
+    );
+
+    return updatePassword;
   }
 
   //update user password

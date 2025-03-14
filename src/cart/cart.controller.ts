@@ -41,6 +41,12 @@ export class CartController {
     return await this.cartService.getCartsPending();
   }
 
+  //get all carts is done
+  @Get('done')
+  async getCartsDone() {
+    return await this.cartService.getCartsDone();
+  }
+
   //get cart
   @Get('user/:userId')
   async getUserCarts(@Param('userId') userId: string) {
