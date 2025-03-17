@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @Controller('cart')
 export class CartController {
@@ -47,10 +49,28 @@ export class CartController {
     return await this.cartService.getCartsDone();
   }
 
+  //get all carts is done
+  @Get('cancel')
+  async getCartsCancel() {
+    return await this.cartService.getCartsCancel();
+  }
+
+  //Export check cartId
+  @Get('download/:cartId')
+  generatePdf(@Res() res: Response, @Param('cartId') cartId: string) {
+    return this.cartService.generatePdf(res, cartId);
+  }
+
   //get cart
   @Get('user/:userId')
   async getUserCarts(@Param('userId') userId: string) {
     return await this.cartService.getCartsByUserId(userId);
+  }
+
+  //get cart by id
+  @Get('info/:cartId')
+  async getCartById(@Param('cartId') cartId: string) {
+    return await this.cartService.getCartById(cartId);
   }
 
 

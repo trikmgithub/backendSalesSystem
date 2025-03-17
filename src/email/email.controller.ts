@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { Public } from 'src/decorator/customize';
+import { Public, ResponseMessage } from 'src/decorator/customize';
+import { SendInvoiceDto } from './dto/send-invoice.dto';
 
 @Controller('email')
 export class EmailController {
@@ -20,5 +21,12 @@ export class EmailController {
     return this.emailService.verifyOTP(email, otp);
   }
 
+   // API gửi hóa đơn qua email
+  @ResponseMessage('Send invoice via email successfully')
+  @Post('send-invoice')
+  async sendInvoiceEmail(@Body() sendInvoiceDto: SendInvoiceDto) {
+    const { email, cartId } = sendInvoiceDto;
+    return this.emailService.sendInvoiceEmail(email, cartId);
+  }
   
 }

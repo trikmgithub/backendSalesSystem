@@ -7,7 +7,6 @@ export class CreateCartDto {
 
     totalAmount: number;
 
-    @IsEnum(['pending', 'completed', 'canceled'])
     status: string;
 
     paymentMethod: string;
