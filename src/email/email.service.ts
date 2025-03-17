@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UsersService } from 'src/users/users.service';
+import { CartService } from 'src/cart/cart.service';
 
 @Injectable()
 export class EmailService {
@@ -9,6 +10,7 @@ export class EmailService {
   constructor(
     private readonly mailerService: MailerService,
     private readonly userService: UsersService,
+    private readonly cartService: CartService
   ) {}
 
   // Tạo mã OTP 6 chữ số
@@ -104,9 +106,9 @@ export class EmailService {
           resolve(pdfBuffer);
         });
         
-        const cartInfo = await this.getCartById(cartId);
+        const cartInfo = await this.cartService.getCartById(cartId);
         
-        doc.fontSize(25).text('INVOICE', { align: 'center' });
+        doc.fontSize(25).text('SKIN BEAUTY INVOICE', { align: 'center' });
         doc.moveDown();
         
         doc.fontSize(14).text('Order Information', { underline: true });
@@ -154,24 +156,6 @@ export class EmailService {
         reject(error);
       }
     });
-  }
-  
-  async getCartById(cartId: string) {
-    
-    return {
-      _id: cartId,
-      username: 'customer@example.com',
-      purchaseDate: new Date(),
-      paymentMethod: 'Credit Card',
-      items: [
-        {
-          itemName: 'Sample Product',
-          quantity: 2,
-          price: 100000,
-        },
-      ],
-      totalAmount: 200000,
-    };
   }
 
   
