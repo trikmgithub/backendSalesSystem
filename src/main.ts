@@ -30,7 +30,7 @@ async function bootstrap() {
     ],
     credentials: true, // Cho phép gửi cookie
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: true, //default: false
+    preflightContinue: false,
     // "optionsSuccessStatus": 204
   });
 
