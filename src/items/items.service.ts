@@ -95,7 +95,7 @@ export class ItemsService {
     const items = await this.itemModel.find().populate('brand', 'name');
 
     const fuse = new Fuse(items, {
-      keys: ['name', 'brand.name'],
+      keys: ['name', 'brand.name', 'description'],
       threshold: 0.3,
       distance: 100,
       ignoreLocation: true,
