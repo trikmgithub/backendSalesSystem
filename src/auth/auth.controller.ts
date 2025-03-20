@@ -105,36 +105,14 @@ export class AuthController {
 
       // Tạo redirect URL với access token và thông tin user cơ bản
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
-      const userInfo = {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        role: user.role,
-      };
+      
+      res.redirect(frontendUri);
 
-      res.cookie('userInfo', JSON.stringify(userInfo), {
-        httpOnly: false,
-        maxAge: ms('5m'),
-      });
-
-      res.cookie('accessToken', JSON.stringify(user.access_token), {
-        httpOnly: false,
-        maxAge: ms('5m'),
-      });
-
-
-      // const redirectUrl = `${frontendUri}?access_token=${
-      //   user.access_token
-      // }&user=${encodeURIComponent(JSON.stringify(userInfo))}`;
-
-      // return res.redirect(encodeURI(redirectUrl));
-
-      return res.redirect(frontendUri);
+      return user;
     } catch (error) {
       console.error('Error in Google login:', error);
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
-      return res.redirect(`${frontendUri}/login?error=Google login failed`);
+      return res.redirect(frontendUri);
     }
   }
 }
