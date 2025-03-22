@@ -7,12 +7,15 @@ import { Item as ItemModel } from './schemas/item.schema';
 import { Brand as BrandModel } from 'src/brands/shemas/brand.schema';
 import { PaginationItemDto } from './dto/pagination-item.dto';
 import Fuse from 'fuse.js';
+import { IUser } from 'src/users/interface/users.interface';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ItemsService {
   constructor(
     @InjectModel(ItemModel.name) private itemModel: Model<ItemModel>,
     @InjectModel(BrandModel.name) private brandModel: Model<BrandModel>,
+    private readonly usersService: UsersService,
   ) {}
 
   //--------------------POST /items
@@ -42,6 +45,13 @@ export class ItemsService {
   }
 
   //--------------------GET /items
+
+  //get items by skin user
+  async getItemsBySkinUser(user: IUser) {
+    const userInfo = (await this.usersService.getOneUser(user._id));
+    const items = await this.getFuzzyItems(userInfo.skin);
+    return items;
+  }
 
   //get item by id
   async getItemById(id: string) {

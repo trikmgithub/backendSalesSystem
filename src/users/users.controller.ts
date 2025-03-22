@@ -64,7 +64,7 @@ export class UsersController {
   @Get('/info/:id')
   @ResponseMessage('Get one user by id successfully')
   async getOneUser(@Param('id') id: string) {
-    const userInfo = await this.usersService.getOneUsers(id);
+    const userInfo = await this.usersService.getOneUser(id);
     return userInfo;
   }
 
@@ -85,6 +85,16 @@ export class UsersController {
   }
 
   //------------------------PATCH /users
+
+  
+  //type of skin user 
+  @Patch('/skin/:type')
+  async skin(
+    @Param('type') type: string,
+    @User() user: IUser
+  ) {
+    return await this.usersService.skin(type, user)
+  }
 
   //update one user
   @Patch('/update')

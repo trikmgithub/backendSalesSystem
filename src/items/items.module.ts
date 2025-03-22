@@ -6,6 +6,7 @@ import { Item, ItemSchema } from './schemas/item.schema';
 import { Brand, BrandSchema } from 'src/brands/shemas/brand.schema';
 import { FilesModule } from 'src/files/files.module';
 import { BrandsModule } from 'src/brands/brands.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { BrandsModule } from 'src/brands/brands.module';
     ]),
     FilesModule,
     BrandsModule,
+    UsersModule,
   ],
   controllers: [ItemsController],
   providers: [ItemsService],

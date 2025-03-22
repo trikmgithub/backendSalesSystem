@@ -34,6 +34,9 @@ export class User {
   @Prop()
   address: string;
 
+  @Prop()
+  skin: string;
+
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: Cart.name }],
     default: [],

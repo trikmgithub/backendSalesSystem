@@ -118,10 +118,27 @@ export class UsersService {
     return user;
   }
 
+  //type of skin user
+  async skin(type: string, user: IUser) {
+    const updated = await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        skin: type,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+
+    return updated;
+
+  }
+
   //-------------------------------------GET /users
 
   //get one user with id
-  async getOneUsers(id: string) {
+  async getOneUser(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid user ID');
     }

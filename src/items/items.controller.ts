@@ -18,10 +18,11 @@ import {
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
-import { Public, ResponseMessage } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { PaginationItemDto } from './dto/pagination-item.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FilesService } from 'src/files/files.service';
+import { IUser } from 'src/users/interface/users.interface';
 
 @Controller('items')
 export class ItemsController {
@@ -98,6 +99,15 @@ export class ItemsController {
 
     return items;
   }
+
+  //get items by skin user
+  @ResponseMessage('Get items by skin user successfully')
+  @Get('/skin')
+  async getItemsBySkinUser(@User() user: IUser) {
+    const items = await this.itemsService.getItemsBySkinUser(user);
+    return items;
+  }
+
 
   @Public()
   //get one item
