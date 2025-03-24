@@ -14,6 +14,14 @@ export class EmailController {
     return this.emailService.sendOTP(email);
   }
 
+  // API gửi OTP
+  @Public()
+  @ResponseMessage('Send OTP for forget password successfully')
+  @Post('send-otp-forget-password')
+  async sendOtpForgetPassword(@Body('email') email: string) {
+    return this.emailService.sendOtpForgetPassword(email);
+  }
+
   // API xác thực OTP
   @Public()
   @Post('verify-otp')

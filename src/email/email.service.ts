@@ -48,6 +48,30 @@ export class EmailService {
     }
   }
 
+  // Gửi OTP qua email
+  async sendOtpForgetPassword(email: string) {
+    const isExisted = await this.userService.findOneByEmail(email);
+
+    if (!isExisted) {
+      throw new BadRequestException('Email is not existed');
+    }
+
+    const otp = this.generateOTP();
+    this.saveOTP(email, otp);
+
+    try {
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Your Beauty Skin OTP Code',
+        text: `Your OTP code is: ${otp}`,
+        html: `<p>Your OTP code is: <strong>${otp}</strong></p>`,
+      });
+      return { success: true, message: 'OTP sent successfully' };
+    } catch (error) {
+      return { success: false, message: 'Failed to send OTP', error };
+    }
+  }
+
   // Xác thực OTP
   verifyOTP(email: string, otp: string) {
     const storedOTP = this.otpStorage.get(email);
