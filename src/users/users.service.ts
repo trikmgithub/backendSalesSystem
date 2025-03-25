@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User as UserModel } from './schemas/user.schema';
 import { Role as RoleModel } from 'src/roles/schemas/role.schema';
 import mongoose, { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { IUser } from './interface/users.interface';
 import { User } from 'src/decorator/customize';
 import { RegisterUserDto } from './dto/register-user.dto';

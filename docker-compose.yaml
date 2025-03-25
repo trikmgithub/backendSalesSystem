@@ -1,0 +1,20 @@
+# Docker Compose configuration
+services:
+  # NestJS application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-app
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+# Define networks
+networks:
+  app-network:
+    driver: bridge
