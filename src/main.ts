@@ -60,8 +60,12 @@ async function bootstrap() {
     defaultVersion: ['1'], //v1
   });
 
-  const PORT = process.env.PORT || configService.get<string>('PORT') || 8080;
-  await app.listen(PORT, () => {
+  // const PORT = process.env.PORT || configService.get<string>('PORT') || 8080;
+  // await app.listen(PORT, () => {
+  //   console.log(`🚀 Server is running on port ${PORT}`);
+  // });
+  const PORT = process.env.PORT || 8000;
+  await app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server is running on port ${PORT}`);
   });
 }
