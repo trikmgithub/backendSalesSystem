@@ -73,7 +73,6 @@ export class CartController {
     return await this.cartService.getCartById(cartId);
   }
 
-
   //-----------PATCH /cart
   @Patch(':cartId')
   async updateCartStatus(

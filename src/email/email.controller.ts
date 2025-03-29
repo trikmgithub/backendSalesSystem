@@ -29,12 +29,11 @@ export class EmailController {
     return this.emailService.verifyOTP(email, otp);
   }
 
-   // API gửi hóa đơn qua email
+  // API gửi hóa đơn qua email
   @ResponseMessage('Send invoice via email successfully')
   @Post('send-invoice')
   async sendInvoiceEmail(@Body() sendInvoiceDto: SendInvoiceDto) {
     const { email, cartId } = sendInvoiceDto;
     return this.emailService.sendInvoiceEmail(email, cartId);
   }
-  
 }

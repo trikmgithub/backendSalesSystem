@@ -23,7 +23,7 @@ import { CartModule } from 'src/cart/cart.module';
       }),
     }),
     UsersModule,
-    CartModule
+    CartModule,
   ],
   controllers: [EmailController],
   providers: [EmailService],

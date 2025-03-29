@@ -1,4 +1,9 @@
-import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -132,7 +137,6 @@ export class UsersService {
     );
 
     return updated;
-
   }
 
   //-------------------------------------GET /users
@@ -186,10 +190,10 @@ export class UsersService {
     const cartInfo = await this.userModel.findById(id).populate('carts');
 
     return {
-      "userId": cartInfo._id,
-      "userEmail": cartInfo.email,
-      "userName": cartInfo.name,
-      "userCarts": cartInfo.carts
+      userId: cartInfo._id,
+      userEmail: cartInfo.email,
+      userName: cartInfo.name,
+      userCarts: cartInfo.carts,
     };
   }
 
@@ -260,12 +264,14 @@ export class UsersService {
 
   //forget password
   async forgetPassword(email: string, password: string, recheck: string) {
-    const isExisted = await this.findOneByEmail(email)
+    const isExisted = await this.findOneByEmail(email);
 
     let hashNewPassword = null;
 
     if (!isExisted) {
-      throw new BadRequestException('Invalid user email/ this email is not register');
+      throw new BadRequestException(
+        'Invalid user email/ this email is not register',
+      );
     }
 
     if (!isExisted.password) {
@@ -273,7 +279,9 @@ export class UsersService {
     }
 
     if (password != recheck) {
-      throw new BadRequestException('Password and Confirm password again is not same');
+      throw new BadRequestException(
+        'Password and Confirm password again is not same',
+      );
     }
 
     if (password) {
@@ -334,14 +342,14 @@ export class UsersService {
     return updateUser;
   }
 
-  //update user cart 
+  //update user cart
   async updateUserCart(userId: any, cartId: any) {
     if (!mongoose.Types.ObjectId.isValid(cartId)) {
       throw new BadRequestException('Cart id is not existed');
     }
 
     const userInfo = await this.userModel.findById(userId);
-    
+
     if (!userInfo) {
       throw new BadRequestException('User id is not existed');
     }
@@ -350,8 +358,8 @@ export class UsersService {
     const updatedUser = await this.userModel.findByIdAndUpdate(
       userId,
       { $addToSet: { carts: cartId } }, // Đảm bảo không bị trùng lặp
-      { new: true, runValidators: true }
-  );
+      { new: true, runValidators: true },
+    );
 
     return updatedUser;
   }

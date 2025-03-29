@@ -51,11 +51,11 @@ export class UsersController {
   @Public()
   @Post('forget-password')
   async forgetPassword(
-    @Body('email') email: string, 
-    @Body('password') password: string, 
-    @Body('recheck') recheck: string
+    @Body('email') email: string,
+    @Body('password') password: string,
+    @Body('recheck') recheck: string,
   ) {
-    return await this.usersService.forgetPassword(email, password, recheck)
+    return await this.usersService.forgetPassword(email, password, recheck);
   }
 
   //------------------------GET /users
@@ -86,14 +86,10 @@ export class UsersController {
 
   //------------------------PATCH /users
 
-  
-  //type of skin user 
+  //type of skin user
   @Patch('/skin/:type')
-  async skin(
-    @Param('type') type: string,
-    @User() user: IUser
-  ) {
-    return await this.usersService.skin(type, user)
+  async skin(@Param('type') type: string, @User() user: IUser) {
+    return await this.usersService.skin(type, user);
   }
 
   //update one user

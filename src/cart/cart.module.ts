@@ -12,9 +12,9 @@ import { ItemsModule } from 'src/items/items.module';
   imports: [
     MongooseModule.forFeature([{ name: Cart.name, schema: CartSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema}]),
+    MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema }]),
     UsersModule,
-    ItemsModule
+    ItemsModule,
   ],
   controllers: [CartController],
   providers: [CartService],

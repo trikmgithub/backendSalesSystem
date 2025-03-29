@@ -1,13 +1,13 @@
-import { IsEnum } from "class-validator";
+import { IsEnum } from 'class-validator';
 
 export class CreateCartDto {
-    userId: string;
+  userId: string;
 
-    items: [];
+  items: [];
 
-    totalAmount: number;
+  totalAmount: number;
 
-    status: string;
+  status: string;
 
-    paymentMethod: string;
+  paymentMethod: string;
 }

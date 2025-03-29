@@ -105,7 +105,7 @@ export class AuthController {
 
       // Tạo redirect URL với access token và thông tin user cơ bản
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
-      
+
       res.redirect(frontendUri);
 
       return user;
