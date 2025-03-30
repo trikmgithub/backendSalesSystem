@@ -12,7 +12,7 @@ import {
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
-import { ResponseMessage } from 'src/decorator/customize';
+import { Public, ResponseMessage } from 'src/decorator/customize';
 import { PaginationDto } from './dto/pagination-brand.dto';
 
 @Controller('brands')
@@ -33,6 +33,7 @@ export class BrandsController {
   //------------GET /brands
 
   //get all brands
+  @Public()
   @Get('/all')
   @ResponseMessage('Get all brands successfully')
   async getAllBrands() {
@@ -42,6 +43,7 @@ export class BrandsController {
   }
 
   //get brands with pagination
+  @Public()
   @Get('/paginate')
   @ResponseMessage('Get brands with pagination successfully')
   async getBrandsPagination(@Query() paginationDto: PaginationDto) {
