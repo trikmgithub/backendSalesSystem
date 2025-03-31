@@ -96,17 +96,23 @@ export class AuthController {
       // Xử lý thông tin người dùng từ Google
       const user = await this.authService.createGoogleUser(req.user);
 
-      // Đặt refresh token vào cookie
+      // Set refresh token in HTTP-only cookie
       res.cookie('refresh_token', user.refresh_token, {
         httpOnly: true,
+        secure: true, // Required for cross-domain with sameSite=none
         maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
-        sameSite: 'lax',
+        sameSite: 'none', // Required for cross-domain cookies
+        path: '/',
       });
-
-      res.cookie('user_info', user, {
-        httpOnly: false,
-        maxAge: ms('5m'),
-      })
+      
+      // Set user info in JavaScript-accessible cookie with correct domain settings
+      res.cookie('user_info', JSON.stringify(user), { // Make sure it's properly serialized
+        httpOnly: false, // Allow JavaScript access
+        secure: true, // Required for cross-domain with sameSite=none
+        maxAge: ms('5m'), // 5 minutes expiration
+        sameSite: 'none', // Required for cross-domain cookies
+        path: '/',
+      });
 
       // Tạo redirect URL với access token và thông tin user cơ bản
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
