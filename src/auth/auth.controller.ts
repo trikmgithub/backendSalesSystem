@@ -103,16 +103,19 @@ export class AuthController {
         sameSite: 'lax',
       });
 
+      res.cookie('user_info', user, {
+        httpOnly: false,
+        maxAge: ms('5m'),
+      })
+
       // Tạo redirect URL với access token và thông tin user cơ bản
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
 
-      res.redirect(frontendUri);
-
-      return user;
+      return res.redirect(frontendUri);
     } catch (error) {
       console.error('Error in Google login:', error);
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
-      return res.redirect(frontendUri);
+      return res.redirect(`${frontendUri}/auth/google-login-error`);
     }
   }
 }
