@@ -20,6 +20,8 @@ export class User {
   name: string;
 
   @Prop()
+  phone: string;
+  @Prop()
   dateOfBirth: Date;
 
   @Prop()

@@ -141,6 +141,12 @@ export class UsersService {
 
   //-------------------------------------GET /users
 
+  //get phone number
+  async getPhoneNumber(user: IUser) {
+    const phone = await this.userModel.findOne({ _id: user._id }).select('phone');
+    return phone;
+  }
+
   //get one user with id
   async getOneUser(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -198,6 +204,27 @@ export class UsersService {
   }
 
   //-------------------------------------PATCH /users
+
+  //update user phone
+  async updatePhone(phone: string, user: IUser) {
+    const vietnamesePhoneRegex = /^(0[1-9][0-9]{9})$/;
+    
+    if (!vietnamesePhoneRegex.test(phone)) {
+      throw new BadRequestException('Invalid phone number');
+    }
+    
+    const updated = await this.userModel.updateOne(
+      { _id: user._id },
+      { phone },
+      {
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+    return updated;
+  }
 
   //update one user
   async updateOneUser(updateUserDto: UpdateUserDto, user: IUser) {

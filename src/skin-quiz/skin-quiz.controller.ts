@@ -72,7 +72,7 @@ export class SkinQuizController {
 
   // Upsert skin type info
   @Post('skin-types')
-  @ResponseMessage('Skin type info added/updated successfully')
+  @ResponseMessage('Skin type info added successfully')
   async upsertSkinTypeInfo(@Body() skinTypeData: any) {
     return await this.skinQuizService.upsertSkinTypeInfo(skinTypeData);
   }

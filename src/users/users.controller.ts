@@ -60,6 +60,13 @@ export class UsersController {
 
   //------------------------GET /users
 
+  //get phone number
+  @Get('/phone')
+  @ResponseMessage('Get phone number successfully')
+  async getPhoneNumber(@User() user: IUser) {
+    return await this.usersService.getPhoneNumber(user);
+  }
+
   //get one user by id
   @Get('/info/:id')
   @ResponseMessage('Get one user by id successfully')
@@ -85,6 +92,13 @@ export class UsersController {
   }
 
   //------------------------PATCH /users
+
+  //update user phone
+  @Patch('/phone')
+  @ResponseMessage('Update user phone success')
+  async updatePhone(@Body('phone') phone: string, @User() user: IUser) {
+    return await this.usersService.updatePhone(phone, user);
+  }
 
   //type of skin user
   @Patch('/skin/:type')
