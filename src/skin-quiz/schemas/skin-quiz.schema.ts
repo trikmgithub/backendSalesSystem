@@ -1,0 +1,59 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
+
+// Schema for a quiz question
+@Schema()
+export class QuizQuestion {
+  @Prop({ required: true })
+  questionId: string;
+
+  @Prop({ required: true })
+  questionText: string;
+
+  @Prop({ type: [Object], required: true })
+  options: {
+    text: string;
+    points: number;
+    skinType: string;
+  }[];
+}
+
+export const QuizQuestionSchema = SchemaFactory.createForClass(QuizQuestion);
+
+// Schema for quiz result analysis
+@Schema()
+export class SkinTypeResult {
+  @Prop({ required: true })
+  skinType: string;
+
+  @Prop({ required: true })
+  description: string;
+
+  @Prop({ type: [String], required: true })
+  recommendations: string[];
+
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Item' })
+  recommendedProducts: mongoose.Schema.Types.ObjectId[];
+}
+
+export const SkinTypeResultSchema =
+  SchemaFactory.createForClass(SkinTypeResult);
+
+// Schema for storing user quiz responses
+@Schema({ timestamps: true })
+export class UserQuizResponse {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: Object, required: true })
+  answers: Record<string, number>;
+
+  @Prop({ required: true })
+  totalScore: number;
+
+  @Prop({ required: true })
+  determinedSkinType: string;
+}
+
+export const UserQuizResponseSchema =
+  SchemaFactory.createForClass(UserQuizResponse);

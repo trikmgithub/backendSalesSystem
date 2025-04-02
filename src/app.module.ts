@@ -13,6 +13,8 @@ import { FilesModule } from './files/files.module';
 import { EmailModule } from './email/email.module';
 import { CartModule } from './cart/cart.module';
 import { PayosModule } from './payos/payos.module';
+import { SkinQuizModule } from './skin-quiz/skin-quiz.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { PayosModule } from './payos/payos.module';
     EmailModule,
     CartModule,
     PayosModule,
+    SkinQuizModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

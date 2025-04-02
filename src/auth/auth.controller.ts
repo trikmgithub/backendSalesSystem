@@ -104,9 +104,10 @@ export class AuthController {
         sameSite: 'none', // Required for cross-domain cookies
         path: '/',
       });
-      
+
       // Set user info in JavaScript-accessible cookie with correct domain settings
-      res.cookie('user_info', JSON.stringify(user), { // Make sure it's properly serialized
+      res.cookie('user_info', JSON.stringify(user), {
+        // Make sure it's properly serialized
         httpOnly: false, // Allow JavaScript access
         secure: true, // Required for cross-domain with sameSite=none
         maxAge: ms('5m'), // 5 minutes expiration
