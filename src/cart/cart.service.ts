@@ -119,7 +119,9 @@ export class CartService {
     doc.fontSize(14).text('Order Information', { underline: true });
     doc.fontSize(12).text(`Order ID: ${cartInfo._id}`);
     doc.text(`Customer gmail: ${cartInfo.username}`);
-    doc.text(`Order Date: ${new Date(cartInfo.purchaseDate).toLocaleString()}`);
+    doc.text(
+      `Order Date: ${new Date(cartInfo.purchaseDate).toLocaleDateString()}`,
+    );
     doc.text(`Payment Method: ${cartInfo.paymentMethod}`);
     doc.moveDown();
 
@@ -164,7 +166,7 @@ export class CartService {
     // Add footer
     doc.moveDown(2);
     doc.fontSize(10).text('Thank you for your purchase!', { align: 'center' });
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, {
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, {
       align: 'center',
     });
 

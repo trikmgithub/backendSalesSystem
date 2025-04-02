@@ -118,7 +118,11 @@ export class AuthController {
       // Tạo redirect URL với access token và thông tin user cơ bản
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
 
-      return res.redirect(frontendUri);
+      // Encode user info để tránh lỗi khi truyền trong URL
+      const queryParams = new URLSearchParams(user).toString();
+      console.log('queryParams', queryParams);
+
+      return res.redirect(`${frontendUri}?${queryParams}`);
     } catch (error) {
       console.error('Error in Google login:', error);
       const frontendUri = this.configService.get<string>('FRONTEND_URI');

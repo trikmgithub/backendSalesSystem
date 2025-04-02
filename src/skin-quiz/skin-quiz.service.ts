@@ -65,7 +65,7 @@ export class SkinQuizService {
 
     for (const questionId in answers) {
       totalScore += answers[questionId];
-      const question = await this.questionModel.findOne({ 
+      const question = await this.questionModel.findOne({
         questionId: questionId,
       });
       maxPossibleScore += question.options.length;
