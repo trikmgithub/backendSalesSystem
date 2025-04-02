@@ -122,7 +122,7 @@ export class AuthController {
       const queryParams = new URLSearchParams(user).toString();
       console.log('queryParams', queryParams);
 
-      return res.redirect(`${frontendUri}?${queryParams}`);
+      return res.redirect(`${frontendUri}?userinfo=${queryParams}`);
     } catch (error) {
       console.error('Error in Google login:', error);
       const frontendUri = this.configService.get<string>('FRONTEND_URI');
