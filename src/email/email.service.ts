@@ -137,7 +137,7 @@ export class EmailService {
         doc.fontSize(12).text(`Order ID: ${cartInfo._id}`);
         doc.text(`Customer Email: ${cartInfo.username || 'N/A'}`);
         doc.text(
-          `Order Date: ${new Date(cartInfo.purchaseDate).toLocaleString()}`,
+          `Order Date: ${new Date(cartInfo.purchaseDate).toLocaleDateString()}`,
         );
         doc.text(`Payment Method: ${cartInfo.paymentMethod || 'N/A'}`);
         doc.moveDown();
@@ -184,7 +184,7 @@ export class EmailService {
         doc
           .fontSize(10)
           .text('Thank you for your purchase!', { align: 'center' });
-        doc.text(`Generated on: ${new Date().toLocaleString()}`, {
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, {
           align: 'center',
         });
 
