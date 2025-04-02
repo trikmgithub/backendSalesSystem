@@ -41,7 +41,7 @@ export class SkinQuizController {
     return await this.skinQuizService.getSkinTypeInfo(skinType);
   }
 
-  // Get user quiz history  
+  // Get user quiz history
   @Get('history/:userId')
   @ResponseMessage('Get user quiz history')
   async getUserQuizHistory(@Param('userId') userId: string) {
@@ -84,9 +84,12 @@ export class SkinQuizController {
   @ResponseMessage('Update quiz question')
   async updateQuestion(
     @Param('questionId') questionId: string,
-    @Body() updateQuestionDto: CreateQuestionDto
+    @Body() updateQuestionDto: CreateQuestionDto,
   ) {
-    return await this.skinQuizService.updateQuestion(questionId, updateQuestionDto);
+    return await this.skinQuizService.updateQuestion(
+      questionId,
+      updateQuestionDto,
+    );
   }
 
   //------------------------DELETE------------------------
@@ -97,4 +100,4 @@ export class SkinQuizController {
   async deleteQuestion(@Param('questionId') questionId: string) {
     return await this.skinQuizService.deleteQuestion(questionId);
   }
-} 
+}

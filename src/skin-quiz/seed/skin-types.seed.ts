@@ -11,7 +11,6 @@ export const skinTypesSeed = [
       'Tẩy da chết 1-2 lần/tuần để loại bỏ tế bào chết',
       'Đắp mặt nạ dưỡng ẩm 1-2 lần/tuần để duy trì độ ẩm',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
   {
     skinType: 'da_kho',
@@ -25,7 +24,6 @@ export const skinTypesSeed = [
       'Đắp mặt nạ cấp ẩm 2-3 lần/tuần',
       'Cân nhắc sử dụng máy tạo độ ẩm trong phòng',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
   {
     skinType: 'da_dau',
@@ -39,7 +37,6 @@ export const skinTypesSeed = [
       'Luôn làm sạch mặt sau khi đổ mồ hôi',
       'Sử dụng giấy thấm dầu vào giữa ngày nếu cần',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
   {
     skinType: 'da_hon_hop',
@@ -52,7 +49,6 @@ export const skinTypesSeed = [
       'Sử dụng các sản phẩm khác nhau cho các vùng da khác nhau',
       'Đắp mặt nạ đất sét ở vùng chữ T và mặt nạ dưỡng ẩm ở vùng má',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
   {
     skinType: 'da_nhay_cam',
@@ -66,7 +62,6 @@ export const skinTypesSeed = [
       'Chọn kem chống nắng vật lý thay vì hóa học',
       'Sử dụng sản phẩm có thành phần làm dịu như lô hội và chiết xuất yến mạch',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
   {
     skinType: 'da_lao_hoa',
@@ -80,7 +75,6 @@ export const skinTypesSeed = [
       'Sử dụng kem mắt đặc trị để giảm quầng thâm và nếp nhăn',
       'Không bao giờ bỏ qua kem chống nắng, ngay cả vào mùa đông',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
   {
     skinType: 'da_kho_lao_hoa',
@@ -95,6 +89,5 @@ export const skinTypesSeed = [
       'Bổ sung thực phẩm giàu omega-3 và collagen',
       'Đầu tư vào máy tạo độ ẩm và xông hơi mặt định kỳ',
     ],
-    recommendedProducts: [], // Will be populated with product IDs
   },
 ];

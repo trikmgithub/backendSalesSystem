@@ -31,9 +31,6 @@ export class SkinTypeResult {
 
   @Prop({ type: [String], required: true })
   recommendations: string[];
-
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Item' })
-  recommendedProducts: mongoose.Schema.Types.ObjectId[];
 }
 
 export const SkinTypeResultSchema =
@@ -49,7 +46,7 @@ export class UserQuizResponse {
   answers: Record<string, number>;
 
   @Prop({ required: true })
-  totalScore: number;
+  scorePercentage: number;
 
   @Prop({ required: true })
   determinedSkinType: string;

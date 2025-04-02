@@ -31,20 +31,24 @@ export class SkinQuizService {
   async addQuestion(createQuestionDto: CreateQuestionDto) {
     try {
       const existingQuestion = await this.questionModel.findOne({
-        questionId: createQuestionDto.questionId
+        questionId: createQuestionDto.questionId,
       });
-      
+
       if (existingQuestion) {
-        throw new BadRequestException(`Câu hỏi với ID ${createQuestionDto.questionId} đã tồn tại`);
+        throw new BadRequestException(
+          `Câu hỏi với ID ${createQuestionDto.questionId} đã tồn tại`,
+        );
       }
-      
+
       const newQuestion = await this.questionModel.create(createQuestionDto);
       return newQuestion;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException('Không thể tạo câu hỏi mới: ' + error.message);
+      throw new BadRequestException(
+        'Không thể tạo câu hỏi mới: ' + error.message,
+      );
     }
   }
 
@@ -57,16 +61,23 @@ export class SkinQuizService {
     }
 
     let totalScore = 0;
+    let maxPossibleScore = 0;
+
     for (const questionId in answers) {
       totalScore += answers[questionId];
+      const question = await this.questionModel.findOne({ 
+        questionId: questionId,
+      });
+      maxPossibleScore += question.options.length;
     }
+    const scorePercentage = (totalScore / maxPossibleScore) * 100;
 
-    const skinType = this.determineSkinType(totalScore);
+    const skinType = this.determineSkinType(scorePercentage);
 
     const userResponse = await this.userQuizResponseModel.create({
       userId,
       answers,
-      totalScore,
+      scorePercentage,
       determinedSkinType: skinType,
     });
 
@@ -110,7 +121,6 @@ export class SkinQuizService {
       .findOne({
         skinType: skinType,
       })
-      .populate('recommendedProducts')
       .exec();
   }
 
@@ -128,13 +138,13 @@ export class SkinQuizService {
       .exec();
   }
 
-  // Helper function to determine skin type based on total score
-  private determineSkinType(score: number): string {
-    if (score <= 15) {
+  // Helper function to determine skin type based on score percentage
+  private determineSkinType(scorePercentage: number): string {
+    if (scorePercentage <= 25) {
       return 'da_kho';
-    } else if (score <= 25) {
+    } else if (scorePercentage <= 50) {
       return 'da_thuong';
-    } else if (score <= 35) {
+    } else if (scorePercentage <= 75) {
       return 'da_hon_hop';
     } else {
       return 'da_dau';
@@ -142,8 +152,15 @@ export class SkinQuizService {
   }
 
   // Update a quiz question
-  async updateQuestion(questionId: string, updateQuestionDto: CreateQuestionDto) {
-    return await this.questionModel.findByIdAndUpdate(questionId, updateQuestionDto, { new: true });
+  async updateQuestion(
+    questionId: string,
+    updateQuestionDto: CreateQuestionDto,
+  ) {
+    return await this.questionModel.findByIdAndUpdate(
+      questionId,
+      updateQuestionDto,
+      { new: true },
+    );
   }
 
   // Delete a quiz question

@@ -50,12 +50,6 @@ export class SkinQuizSeedService {
       // Clone the seed data to avoid modifying the original
       const skinTypesToInsert = JSON.parse(JSON.stringify(skinTypesSeed));
 
-      // Seed without product recommendations for now
-      // We'll leave the recommendedProducts array empty
-      skinTypesToInsert.forEach((skinType) => {
-        skinType.recommendedProducts = [];
-      });
-
       // Insert all skin types with empty recommended products arrays
       this.logger.log('Inserting skin types into database');
       await this.skinTypeResultModel.insertMany(skinTypesToInsert);
