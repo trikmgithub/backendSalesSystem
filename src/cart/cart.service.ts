@@ -24,15 +24,35 @@ export class CartService {
   ) {}
 
   //----------------POST /cart
+
   //create new cart
   async createCart(createCartDto: CreateCartDto) {
+    for (const item of createCartDto.items) {
+      const itemDetails = await this.itemModel.findById(item.itemId);
+
+      if (!itemDetails) {
+        throw new NotFoundException(`Item with ID ${item.itemId} not found`);
+      }
+
+      if (itemDetails.quantity < item.quantity) {
+        throw new BadRequestException(
+          `Not enough inventory for item ${itemDetails.name}. Available: ${itemDetails.quantity}, Requested: ${item.quantity}`,
+        );
+      }
+    }
+
+    if (!createCartDto.status) {
+      createCartDto.status = 'pending';
+    }
+
     const newCart = await this.cartModel.create(createCartDto);
 
     if (newCart) {
-      const update = await this.userService.updateUserCart(
-        createCartDto.userId,
-        newCart._id,
-      );
+      await this.userService.updateUserCart(createCartDto.userId, newCart._id);
+      
+      for (const item of newCart.items) {
+        await this.decreaseItemQuantity(item.itemId, item.quantity);
+      }
     }
 
     return newCart;
@@ -175,7 +195,89 @@ export class CartService {
   }
 
   //---------------PATCH /cart
+
   async updateCart(cartId: string, updateData: any): Promise<CartModel | null> {
+    if (!mongoose.Types.ObjectId.isValid(cartId)) {
+      throw new BadRequestException('Invalid cart ID');
+    }
+
+    const cart = await this.cartModel.findById(cartId);
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+
+    const oldStatus = cart.status;
+    const newStatus = updateData.status;
+
+    if (newStatus && oldStatus !== newStatus) {
+      await this.handleInventoryUpdate(cart, oldStatus, newStatus);
+    }
+
     return this.cartModel.findByIdAndUpdate(cartId, updateData, { new: true });
+  }
+
+  // handle inventory updates based on cart status changes
+  private async handleInventoryUpdate(
+    cart: CartModel,
+    oldStatus: string,
+    newStatus: string,
+  ) {
+    
+    // Case: Canceling a cart (from pending or done) - add quantities back to inventory
+    if (newStatus === 'cancel' && (oldStatus === 'pending' || oldStatus === 'done')) {
+      for (const item of cart.items) {
+        await this.increaseItemQuantity(item.itemId, item.quantity);
+      }
+    }
+    
+    // Case: Moving from canceled back to pending or done - decrease quantities again
+    else if (oldStatus === 'cancel' && (newStatus === 'pending' || newStatus === 'done')) {
+      for (const item of cart.items) {
+        await this.decreaseItemQuantity(item.itemId, item.quantity);
+      }
+    }
+  }
+
+  // decrease item quantity
+  private async decreaseItemQuantity(
+    itemId: mongoose.Schema.Types.ObjectId,
+    quantity: number,
+  ) {
+    const item = await this.itemModel.findById(itemId);
+    if (!item) {
+      throw new NotFoundException(`Item with ID ${itemId} not found`);
+    }
+
+    if (item.quantity < quantity) {
+      throw new BadRequestException(
+        `Not enough inventory for item ${item.name}`,
+      );
+    }
+
+    const newQuantity = item.quantity - quantity;
+    const stock = newQuantity > 0;
+
+    await this.itemModel.findByIdAndUpdate(itemId, {
+      quantity: newQuantity,
+      stock: stock,
+    });
+  }
+
+  // increase item quantity
+  private async increaseItemQuantity(
+    itemId: mongoose.Schema.Types.ObjectId,
+    quantity: number,
+  ) {
+    const item = await this.itemModel.findById(itemId);
+    if (!item) {
+      throw new NotFoundException(`Item with ID ${itemId} not found`);
+    }
+
+    const newQuantity = item.quantity + quantity;
+
+    await this.itemModel.findByIdAndUpdate(itemId, {
+      quantity: newQuantity,
+      stock: true,
+    });
   }
 }

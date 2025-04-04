@@ -69,7 +69,7 @@ export class ItemsService {
       })
       .exec();
 
-      return this.addDiscountedPriceToItem(item);
+    return this.addDiscountedPriceToItem(item);
   }
 
   //get all items with pagination

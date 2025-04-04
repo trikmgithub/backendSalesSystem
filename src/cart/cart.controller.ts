@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Res,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { Response } from 'express';
+import { Public, ResponseMessage } from 'src/decorator/customize';
 
 @Controller('cart')
 export class CartController {
@@ -21,12 +24,21 @@ export class CartController {
   //------------POST /cart
 
   //create new cart
-  @ApiExcludeEndpoint()
-  @Post('/create/')
+  @Post('/create')
+  @ResponseMessage('Cart created successfully')
   async createCart(@Body() createCartDto: CreateCartDto) {
-    const cart = await this.cartService.createCart(createCartDto);
-
-    return cart;
+    try {
+      const cart = await this.cartService.createCart(createCartDto);
+      return cart;
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: error.message,
+          success: false,
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   //------------GET /cart
@@ -49,7 +61,7 @@ export class CartController {
     return await this.cartService.getCartsDone();
   }
 
-  //get all carts is done
+  //get all carts is cancel
   @Get('cancel')
   async getCartsCancel() {
     return await this.cartService.getCartsCancel();
@@ -74,11 +86,28 @@ export class CartController {
   }
 
   //-----------PATCH /cart
+
+  // Update cart status
   @Patch(':cartId')
+  @ResponseMessage('Cart status updated successfully')
   async updateCartStatus(
     @Param('cartId') cartId: string,
     @Body() updateData: any,
   ) {
-    return this.cartService.updateCart(cartId, updateData);
+    try {
+      const updatedCart = await this.cartService.updateCart(cartId, updateData);
+      return {
+        success: true,
+        cart: updatedCart,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: error.message,
+          success: false,
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
