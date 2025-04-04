@@ -13,8 +13,8 @@ export class Item {
   @Prop()
   price: number;
 
-  @Prop()
-  flashSale: boolean;
+  @Prop({ type: Number, default: 0 })
+  flashSale: number;
 
   @Prop()
   description: string;

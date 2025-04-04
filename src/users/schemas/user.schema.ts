@@ -21,6 +21,7 @@ export class User {
 
   @Prop()
   phone: string;
+
   @Prop()
   dateOfBirth: Date;
 

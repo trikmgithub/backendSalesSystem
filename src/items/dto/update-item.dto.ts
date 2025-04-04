@@ -1,5 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsNotEmpty, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 import mongoose from 'mongoose';
 
 export class UpdateItemDto {
@@ -22,4 +29,11 @@ export class UpdateItemDto {
   @IsInt({ message: 'Quantity must be an integer number' })
   @Min(1, { message: 'Quantity must not be less than 1' })
   quantity: number;
+
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber({}, { message: 'FlashSale must be a number' })
+  @Min(0, { message: 'FlashSale percentage must not be less than 0' })
+  @Max(100, { message: 'FlashSale percentage must not be greater than 100' })
+  flashSale: number;
 }

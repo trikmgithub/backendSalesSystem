@@ -31,6 +31,8 @@ export class ItemsService {
       throw new BadRequestException('Brand is not exist');
     }
 
+    const flashSalePercentage = flashSale !== undefined ? flashSale : 0;
+
     const item = await this.itemModel.create({
       name,
       price,
@@ -38,7 +40,7 @@ export class ItemsService {
       brand,
       quantity,
       imageUrls,
-      flashSale,
+      flashSale: flashSalePercentage,
     });
 
     return item;
@@ -67,7 +69,7 @@ export class ItemsService {
       })
       .exec();
 
-    return item;
+      return this.addDiscountedPriceToItem(item);
   }
 
   //get all items with pagination
@@ -96,7 +98,7 @@ export class ItemsService {
         numberItems: total,
         totalPages: Math.ceil(total / limit),
       },
-      result: items,
+      result: this.addDiscountedPriceToItems(items),
     };
   }
 
@@ -114,7 +116,7 @@ export class ItemsService {
 
     const itemsFilter = results.map((result) => result.item);
 
-    return itemsFilter;
+    return this.addDiscountedPriceToItems(itemsFilter);
   }
 
   //get all items
@@ -122,7 +124,7 @@ export class ItemsService {
     const items = await this.itemModel
       .find()
       .populate('brand', 'name description');
-    return items;
+    return this.addDiscountedPriceToItems(items);
   }
 
   //-------------Patch /items
@@ -133,18 +135,22 @@ export class ItemsService {
       throw new BadRequestException('Id item is not valid');
     }
 
-    const { brand, description, name, price, quantity } = updateItemDto;
+    const { brand, description, name, price, quantity, flashSale } =
+      updateItemDto;
 
-    const item = await this.itemModel.updateOne(
-      { _id: id },
-      {
-        name,
-        description,
-        brand,
-        price,
-        quantity,
-      },
-    );
+    const updateData: any = {
+      name,
+      description,
+      brand,
+      price,
+      quantity,
+    };
+
+    if (flashSale !== undefined) {
+      updateData.flashSale = flashSale;
+    }
+
+    const item = await this.itemModel.updateOne({ _id: id }, updateData);
 
     return item;
   }
@@ -182,5 +188,46 @@ export class ItemsService {
     }
 
     return item;
+  }
+
+  //------------------Extends
+
+  calculateDiscountedPrice(item: any): number {
+    if (
+      !item ||
+      typeof item.price !== 'number' ||
+      typeof item.flashSale !== 'number'
+    ) {
+      return item?.price || 0;
+    }
+
+    const discountAmount = (item.price * item.flashSale) / 100;
+    const discountedPrice = item.price - discountAmount;
+
+    return Math.round(discountedPrice * 100) / 100;
+  }
+
+  addDiscountedPriceToItems(items: any | any[]): any {
+    if (Array.isArray(items)) {
+      return items.map((item) => this.addDiscountedPriceToItem(item));
+    }
+    return this.addDiscountedPriceToItem(items);
+  }
+
+  addDiscountedPriceToItem(item: any): any {
+    if (!item) return item;
+
+    const processedItem = item.toObject ? item.toObject() : { ...item };
+
+    if (processedItem.flashSale > 0) {
+      processedItem.discountedPrice =
+        this.calculateDiscountedPrice(processedItem);
+      processedItem.isOnSale = true;
+    } else {
+      processedItem.discountedPrice = processedItem.price;
+      processedItem.isOnSale = false;
+    }
+
+    return processedItem;
   }
 }

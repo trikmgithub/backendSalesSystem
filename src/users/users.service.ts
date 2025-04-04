@@ -143,7 +143,9 @@ export class UsersService {
 
   //get phone number
   async getPhoneNumber(user: IUser) {
-    const phone = await this.userModel.findOne({ _id: user._id }).select('phone');
+    const phone = await this.userModel
+      .findOne({ _id: user._id })
+      .select('phone');
     return phone;
   }
 
@@ -208,11 +210,11 @@ export class UsersService {
   //update user phone
   async updatePhone(phone: string, user: IUser) {
     const vietnamesePhoneRegex = /^(0[1-9][0-9]{9})$/;
-    
+
     if (!vietnamesePhoneRegex.test(phone)) {
       throw new BadRequestException('Invalid phone number');
     }
-    
+
     const updated = await this.userModel.updateOne(
       { _id: user._id },
       { phone },

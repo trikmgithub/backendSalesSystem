@@ -1,5 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsNotEmpty, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 import mongoose from 'mongoose';
 import { isFloat64Array } from 'util/types';
 
@@ -24,5 +31,10 @@ export class CreateItemDto {
   @Min(1, { message: 'Quantity must not be less than 1' })
   quantity: number;
 
-  flashSale: boolean;
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber({}, { message: 'FlashSale must be a number' })
+  @Min(0, { message: 'FlashSale percentage must not be less than 0' })
+  @Max(100, { message: 'FlashSale percentage must not be greater than 100' })
+  flashSale: number;
 }
