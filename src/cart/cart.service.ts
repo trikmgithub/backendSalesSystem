@@ -27,35 +27,71 @@ export class CartService {
 
   //create new cart
   async createCart(createCartDto: CreateCartDto) {
-    for (const item of createCartDto.items) {
-      const itemDetails = await this.itemModel.findById(item.itemId);
-
-      if (!itemDetails) {
-        throw new NotFoundException(`Item with ID ${item.itemId} not found`);
-      }
-
-      if (itemDetails.quantity < item.quantity) {
-        throw new BadRequestException(
-          `Not enough inventory for item ${itemDetails.name}. Available: ${itemDetails.quantity}, Requested: ${item.quantity}`,
-        );
-      }
-    }
-
-    if (!createCartDto.status) {
-      createCartDto.status = 'pending';
-    }
-
-    const newCart = await this.cartModel.create(createCartDto);
-
-    if (newCart) {
-      await this.userService.updateUserCart(createCartDto.userId, newCart._id);
+    const session = await this.cartModel.db.startSession();
+    
+    try {
+      session.startTransaction();
       
-      for (const item of newCart.items) {
-        await this.decreaseItemQuantity(item.itemId, item.quantity);
-      }
-    }
+      
+      for (const item of createCartDto.items) {
+        const itemDetails = await this.itemModel.findOneAndUpdate(
+          { 
+            _id: item.itemId, 
+            quantity: { $gte: item.quantity } //gte: greater than or equal to
+          },
+          { 
+            $inc: { quantity: -item.quantity }, //inc: increment
+            $set: { stock: true } //set: set stock to true
+          },
+          { 
+            new: true, //new: return the updated document
+            session  //session: use the same session for the operation
+          }
+        );
 
-    return newCart;
+        //if itemDetails is not found, throw an error
+        if (!itemDetails) {
+          const originalItem = await this.itemModel.findById(item.itemId).session(session);
+          
+          if (!originalItem) {
+            throw new NotFoundException(`Item with ID ${item.itemId} not found`);
+          } else {
+            throw new BadRequestException(
+              `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${item.quantity}`
+            );
+          }
+        }
+        
+        //if itemDetails.quantity is 0, update the stock to false
+        if (itemDetails.quantity === 0) {
+          await this.itemModel.updateOne(
+            { _id: item.itemId },
+            { stock: false },
+            { session }
+          );
+        }
+        
+      }
+
+      if (!createCartDto.status) {
+        createCartDto.status = 'pending';
+      }
+
+      const newCart = await this.cartModel.create([createCartDto], { session }).then(carts => carts[0]);
+      
+      if (newCart) {
+        await this.userService.updateUserCart(createCartDto.userId, newCart._id);
+      }
+      
+      await session.commitTransaction();
+      
+      return newCart;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   //---------------GET /cart
@@ -201,83 +237,158 @@ export class CartService {
       throw new BadRequestException('Invalid cart ID');
     }
 
-    const cart = await this.cartModel.findById(cartId);
-    if (!cart) {
-      throw new NotFoundException('Cart not found');
+    const session = await this.cartModel.db.startSession();
+    
+    try {
+      session.startTransaction();
+      
+      const cart = await this.cartModel.findById(cartId).session(session);
+      
+      if (!cart) {
+        throw new NotFoundException('Cart not found');
+      }
+  
+      const oldStatus = cart.status;
+      const newStatus = updateData.status;
+  
+      if (newStatus && oldStatus !== newStatus) {
+        await this.handleInventoryUpdate(cart, oldStatus, newStatus);
+      }
+  
+      const updatedCart = await this.cartModel.findByIdAndUpdate(
+        cartId, 
+        updateData, 
+        { new: true, session }
+      );
+      
+      await session.commitTransaction();
+      
+      return updatedCart;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    const oldStatus = cart.status;
-    const newStatus = updateData.status;
-
-    if (newStatus && oldStatus !== newStatus) {
-      await this.handleInventoryUpdate(cart, oldStatus, newStatus);
-    }
-
-    return this.cartModel.findByIdAndUpdate(cartId, updateData, { new: true });
   }
 
-  // handle inventory updates based on cart status changes
+  // Helper method to handle inventory updates based on cart status changes
   private async handleInventoryUpdate(
     cart: CartModel,
     oldStatus: string,
     newStatus: string,
   ) {
+    const session = await this.cartModel.db.startSession();
     
-    // Case: Canceling a cart (from pending or done) - add quantities back to inventory
-    if (newStatus === 'cancel' && (oldStatus === 'pending' || oldStatus === 'done')) {
-      for (const item of cart.items) {
-        await this.increaseItemQuantity(item.itemId, item.quantity);
+    try {
+      session.startTransaction();
+      
+      // Case: Canceling a cart (from pending or done) - add quantities back to inventory
+      if (newStatus === 'cancel' && (oldStatus === 'pending' || oldStatus === 'done')) {
+        for (const item of cart.items) {
+          await this.increaseItemQuantity(item.itemId, item.quantity, session);
+        }
       }
-    }
-    
-    // Case: Moving from canceled back to pending or done - decrease quantities again
-    else if (oldStatus === 'cancel' && (newStatus === 'pending' || newStatus === 'done')) {
-      for (const item of cart.items) {
-        await this.decreaseItemQuantity(item.itemId, item.quantity);
+      
+      // Case: Moving from canceled back to pending or done - decrease quantities again
+      else if (oldStatus === 'cancel' && (newStatus === 'pending' || newStatus === 'done')) {
+        for (const item of cart.items) {
+          const itemDetails = await this.itemModel.findById(item.itemId).session(session);
+          
+          if (!itemDetails) {
+            throw new NotFoundException(`Item with ID ${item.itemId} not found`);
+          }
+          
+          if (itemDetails.quantity < item.quantity) {
+            throw new BadRequestException(
+              `Cannot restore cart to ${newStatus} status. Not enough inventory for item ${itemDetails.name}.`
+            );
+          }
+        }
+        
+        for (const item of cart.items) {
+          await this.decreaseItemQuantity(item.itemId, item.quantity, session);
+        }
       }
+      
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
   }
 
-  // decrease item quantity
+  // Helper to decrease item quantity
   private async decreaseItemQuantity(
     itemId: mongoose.Schema.Types.ObjectId,
     quantity: number,
+    session?: mongoose.ClientSession,
   ) {
-    const item = await this.itemModel.findById(itemId);
+    const options = session ? { session } : {};
+    
+    const item = await this.itemModel.findOneAndUpdate(
+      { 
+        _id: itemId,
+        quantity: { $gte: quantity }
+      },
+      { 
+        $inc: { quantity: -quantity } 
+      },
+      { 
+        new: true,
+        ...options
+      }
+    );
+
     if (!item) {
-      throw new NotFoundException(`Item with ID ${itemId} not found`);
+      const originalItem = await this.itemModel.findById(itemId, null, options);
+      
+      if (!originalItem) {
+        throw new NotFoundException(`Item with ID ${itemId} not found`);
+      } else {
+        throw new BadRequestException(
+          `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${quantity}`
+        );
+      }
     }
 
-    if (item.quantity < quantity) {
-      throw new BadRequestException(
-        `Not enough inventory for item ${item.name}`,
+    if (item.quantity === 0) {
+      await this.itemModel.updateOne(
+        { _id: itemId },
+        { stock: false },
+        options
       );
     }
-
-    const newQuantity = item.quantity - quantity;
-    const stock = newQuantity > 0;
-
-    await this.itemModel.findByIdAndUpdate(itemId, {
-      quantity: newQuantity,
-      stock: stock,
-    });
+    
+    return item;
   }
 
-  // increase item quantity
+  // Helper to increase item quantity
   private async increaseItemQuantity(
     itemId: mongoose.Schema.Types.ObjectId,
     quantity: number,
+    session?: mongoose.ClientSession,
   ) {
-    const item = await this.itemModel.findById(itemId);
+    const options = session ? { session } : {};
+    
+    const item = await this.itemModel.findOneAndUpdate(
+      { _id: itemId },
+      { 
+        $inc: { quantity: quantity },
+        $set: { stock: true }
+      },
+      { 
+        new: true,
+        ...options 
+      }
+    );
+
     if (!item) {
       throw new NotFoundException(`Item with ID ${itemId} not found`);
     }
-
-    const newQuantity = item.quantity + quantity;
-
-    await this.itemModel.findByIdAndUpdate(itemId, {
-      quantity: newQuantity,
-      stock: true,
-    });
+    
+    return item;
   }
 }
