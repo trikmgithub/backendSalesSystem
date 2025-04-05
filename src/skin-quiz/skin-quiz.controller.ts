@@ -28,6 +28,22 @@ export class SkinQuizController {
     return await this.skinQuizService.getAllQuestions();
   }
 
+  // Get active quiz questions
+  @Public()
+  @Get('questions/active')
+  @ResponseMessage('Get all active quiz questions')
+  async getActiveQuestions() {
+    return await this.skinQuizService.getActiveQuestions();
+  }
+
+  // Get not active quiz questions
+  @Public()
+  @Get('questions/not-active')
+  @ResponseMessage('Get all not active quiz questions')
+  async getNotActiveQuestions() {
+    return await this.skinQuizService.getNotActiveQuestions();
+  }
+
   // Get all skin types info
   @Get('skin-types')
   @ResponseMessage('Get all skin types info')

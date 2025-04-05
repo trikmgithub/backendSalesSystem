@@ -24,7 +24,17 @@ export class SkinQuizService {
 
   // Get all quiz questions
   async getAllQuestions() {
+    return await this.questionModel.find().exec();
+  }
+
+  // Get active quiz questions
+  async getActiveQuestions() {
     return await this.questionModel.find({ isActive: true }).exec();
+  }
+
+  // Get not active quiz questions
+  async getNotActiveQuestions() {
+    return await this.questionModel.find({ isActive: false }).exec();
   }
 
   // Add a new quiz question
