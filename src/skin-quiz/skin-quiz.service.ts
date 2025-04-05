@@ -24,7 +24,7 @@ export class SkinQuizService {
 
   // Get all quiz questions
   async getAllQuestions() {
-    return await this.questionModel.find().exec();
+    return await this.questionModel.find({ isActive: true }).exec();
   }
 
   // Add a new quiz question
@@ -64,10 +64,16 @@ export class SkinQuizService {
     let maxPossibleScore = 0;
 
     for (const questionId in answers) {
-      totalScore += answers[questionId];
       const question = await this.questionModel.findOne({
         questionId: questionId,
+        isActive: true
       });
+
+      if (!question) {
+        throw new BadRequestException(`Question with ID ${questionId} is not active or does not exist`);
+      }
+
+      totalScore += answers[questionId];
       maxPossibleScore += question.options.length;
     }
     const scorePercentage = (totalScore / maxPossibleScore) * 100;

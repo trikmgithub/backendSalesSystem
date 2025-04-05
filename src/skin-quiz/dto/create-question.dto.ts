@@ -35,4 +35,7 @@ export class CreateQuestionDto {
   @Type(() => QuestionOptionDto)
   @IsNotEmpty({ message: 'Answer list must not be empty' })
   options: QuestionOptionDto[];
+
+  @IsNotEmpty({ message: 'isActive status must not be empty' })
+  isActive: boolean;
 }

@@ -10,6 +10,9 @@ export class QuizQuestion {
   @Prop({ required: true })
   questionText: string;
 
+  @Prop({ required: true })
+  isActive: boolean;
+
   @Prop({ type: [Object], required: true })
   options: {
     text: string;
