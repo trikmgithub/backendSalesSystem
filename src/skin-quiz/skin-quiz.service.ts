@@ -151,6 +151,21 @@ export class SkinQuizService {
     }
   }
 
+  // Update a skin type info
+  async updateSkinTypeInfo(skinType: string, skinTypeData: any) {
+    const data = await this.skinTypeResultModel.findOneAndUpdate(
+      { skinType: skinType },
+      skinTypeData,
+      { new: true },
+    );
+
+    if (!data) {
+      throw new BadRequestException('Skin type not found');
+    }
+
+    return data;
+  }
+
   // Update a quiz question
   async updateQuestion(
     questionId: string,
@@ -161,6 +176,17 @@ export class SkinQuizService {
       updateQuestionDto,
       { new: true },
     );
+  }
+
+  // Delete a skin type info
+  async deleteSkinTypeInfo(skinType: string) {
+    const data = await this.skinTypeResultModel.findOneAndDelete({ skinType: skinType });
+
+    if (!data) {
+      throw new BadRequestException('Skin type not found');
+    }
+    
+    return data;
   }
 
   // Delete a quiz question

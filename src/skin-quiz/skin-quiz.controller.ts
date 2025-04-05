@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Put,
+  Patch,
 } from '@nestjs/common';
 import { SkinQuizService } from './skin-quiz.service';
 import { QuizResponseDto } from './dto/quiz-response.dto';
@@ -79,6 +80,13 @@ export class SkinQuizController {
 
   //------------------------PUT------------------------
 
+  // Update a skin type info
+  @Patch('skin-types/:type')
+  @ResponseMessage('Update skin type info')
+  async updateSkinTypeInfo(@Param('type') skinType: string, @Body() skinTypeData: any) {
+    return await this.skinQuizService.updateSkinTypeInfo(skinType, skinTypeData);
+  }
+
   // Update an existing quiz question
   @Put('questions/:questionId')
   @ResponseMessage('Update quiz question')
@@ -93,6 +101,13 @@ export class SkinQuizController {
   }
 
   //------------------------DELETE------------------------
+
+  // Delete a skin type info
+  @Delete('skin-types/:type')
+  @ResponseMessage('Delete skin type info')
+  async deleteSkinTypeInfo(@Param('type') skinType: string) {
+    return await this.skinQuizService.deleteSkinTypeInfo(skinType);
+  }
 
   // Delete a quiz question
   @Delete('questions/:questionId')

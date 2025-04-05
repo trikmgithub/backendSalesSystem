@@ -209,7 +209,7 @@ export class UsersService {
 
   //update user phone
   async updatePhone(phone: string, user: IUser) {
-    const vietnamesePhoneRegex = /^(0[1-9][0-9]{9})$/;
+    const vietnamesePhoneRegex = /^(0[1-9][0-9]{8})$/;
 
     if (!vietnamesePhoneRegex.test(phone)) {
       throw new BadRequestException('Invalid phone number');
