@@ -5,4 +5,4 @@ export class FavoriteItemDto {
   @IsNotEmpty({ message: 'Item ID is required' })
   @IsMongoId()
   itemId: mongoose.Schema.Types.ObjectId;
-} 
+}

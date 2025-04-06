@@ -62,13 +62,15 @@ export class UsersController {
   //add favorite item
   @Post('favorite-items')
   @ResponseMessage('Added item to favorites successfully')
-  async addFavoriteItem(@User() user: IUser, @Body() favoriteItemDto: FavoriteItemDto) {
+  async addFavoriteItem(
+    @User() user: IUser,
+    @Body() favoriteItemDto: FavoriteItemDto,
+  ) {
     return this.usersService.addFavoriteItem(user._id, favoriteItemDto);
   }
 
   //------------------------GET /users
 
-  
   @Get('favorite-items')
   @ResponseMessage('Get favorite items successfully')
   async getFavoriteItems(@User() user: IUser) {
@@ -190,8 +192,10 @@ export class UsersController {
   //remove favorite item
   @Delete('favorite-items')
   @ResponseMessage('Removed item from favorites successfully')
-  async removeFavoriteItem(@User() user: IUser, @Body() favoriteItemDto: FavoriteItemDto) {
+  async removeFavoriteItem(
+    @User() user: IUser,
+    @Body() favoriteItemDto: FavoriteItemDto,
+  ) {
     return this.usersService.removeFavoriteItem(user._id, favoriteItemDto);
   }
-
 }

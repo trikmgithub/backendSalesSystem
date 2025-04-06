@@ -15,7 +15,9 @@ import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { Response } from 'express';
-import { Public, ResponseMessage } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
+import { PlaceOrderForOtherDto } from './dto/place-order-for-other.dto';
+import { IUser } from 'src/users/interface/users.interface';
 
 @Controller('cart')
 export class CartController {
@@ -30,6 +32,34 @@ export class CartController {
     try {
       const cart = await this.cartService.createCart(createCartDto);
       return cart;
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: error.message,
+          success: false,
+        },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // Place an order for someone else
+  @ResponseMessage('Đặt hàng hộ người khác thành công')
+  @Post('/create-for-other')
+  async createCartForOther(
+    @Body() placeOrderDto: PlaceOrderForOtherDto,
+    @User() user: IUser,
+  ) {
+    try {
+      const cart = await this.cartService.createCartForOther(
+        placeOrderDto,
+        user,
+      );
+      return {
+        success: true,
+        data: cart,
+        message: 'Đặt hàng hộ người khác thành công',
+      };
     } catch (error) {
       throw new HttpException(
         {

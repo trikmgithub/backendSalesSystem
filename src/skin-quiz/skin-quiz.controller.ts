@@ -99,8 +99,14 @@ export class SkinQuizController {
   // Update a skin type info
   @Patch('skin-types/:type')
   @ResponseMessage('Update skin type info')
-  async updateSkinTypeInfo(@Param('type') skinType: string, @Body() skinTypeData: any) {
-    return await this.skinQuizService.updateSkinTypeInfo(skinType, skinTypeData);
+  async updateSkinTypeInfo(
+    @Param('type') skinType: string,
+    @Body() skinTypeData: any,
+  ) {
+    return await this.skinQuizService.updateSkinTypeInfo(
+      skinType,
+      skinTypeData,
+    );
   }
 
   // Update an existing quiz question

@@ -13,6 +13,8 @@ import PDFDocument from 'pdfkit';
 import { Response } from 'express';
 import { User as UserModel } from 'src/users/schemas/user.schema';
 import { Item as ItemModel } from 'src/items/schemas/item.schema';
+import { PlaceOrderForOtherDto } from './dto/place-order-for-other.dto';
+import { IUser } from 'src/users/interface/users.interface';
 
 @Injectable()
 export class CartService {
@@ -28,65 +30,191 @@ export class CartService {
   //create new cart
   async createCart(createCartDto: CreateCartDto) {
     const session = await this.cartModel.db.startSession();
-    
+
     try {
       session.startTransaction();
-      
-      
+
       for (const item of createCartDto.items) {
         const itemDetails = await this.itemModel.findOneAndUpdate(
-          { 
-            _id: item.itemId, 
-            quantity: { $gte: item.quantity } //gte: greater than or equal to
+          {
+            _id: item.itemId,
+            quantity: { $gte: item.quantity }, //gte: greater than or equal to
           },
-          { 
+          {
             $inc: { quantity: -item.quantity }, //inc: increment
-            $set: { stock: true } //set: set stock to true
+            $set: { stock: true }, //set: set stock to true
           },
-          { 
+          {
             new: true, //new: return the updated document
-            session  //session: use the same session for the operation
-          }
+            session, //session: use the same session for the operation
+          },
         );
 
         //if itemDetails is not found, throw an error
         if (!itemDetails) {
-          const originalItem = await this.itemModel.findById(item.itemId).session(session);
-          
+          const originalItem = await this.itemModel
+            .findById(item.itemId)
+            .session(session);
+
           if (!originalItem) {
-            throw new NotFoundException(`Item with ID ${item.itemId} not found`);
+            throw new NotFoundException(
+              `Item with ID ${item.itemId} not found`,
+            );
           } else {
             throw new BadRequestException(
-              `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${item.quantity}`
+              `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${item.quantity}`,
             );
           }
         }
-        
+
         //if itemDetails.quantity is 0, update the stock to false
         if (itemDetails.quantity === 0) {
           await this.itemModel.updateOne(
             { _id: item.itemId },
             { stock: false },
-            { session }
+            { session },
           );
         }
-        
       }
 
       if (!createCartDto.status) {
         createCartDto.status = 'pending';
       }
 
-      const newCart = await this.cartModel.create([createCartDto], { session }).then(carts => carts[0]);
-      
+      const newCart = await this.cartModel
+        .create([createCartDto], { session })
+        .then((carts) => carts[0]);
+
       if (newCart) {
-        await this.userService.updateUserCart(createCartDto.userId, newCart._id);
+        await this.userService.updateUserCart(
+          createCartDto.userId,
+          newCart._id,
+        );
       }
-      
+
       await session.commitTransaction();
-      
+
       return newCart;
     } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  // Create cart for someone else
+  async createCartForOther(placeOrderDto: PlaceOrderForOtherDto, user: IUser) {
+    const session = await this.cartModel.db.startSession();
+
+    try {
+      session.startTransaction();
+
+      // Validate total amount matches sum of items
+      const calculatedTotal = placeOrderDto.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+      if (Math.abs(calculatedTotal - placeOrderDto.totalAmount) > 0.01) {
+        // Allow small floating point difference
+        throw new BadRequestException(
+          `Tổng tiền không khớp với giá trị sản phẩm. Tổng tiền: ${placeOrderDto.totalAmount}, Giá trị sản phẩm: ${calculatedTotal}`,
+        );
+      }
+
+      // Validate and update inventory for each item
+      for (const item of placeOrderDto.items) {
+        console.log(
+          `[CartService] Processing item ${item.itemId} with quantity ${item.quantity}`,
+        );
+
+        const itemDetails = await this.itemModel.findOneAndUpdate(
+          {
+            _id: item.itemId,
+            quantity: { $gte: item.quantity },
+          },
+          {
+            $inc: { quantity: -item.quantity },
+          },
+          {
+            new: true,
+            session,
+          },
+        );
+
+        if (!itemDetails) {
+          const originalItem = await this.itemModel
+            .findById(item.itemId)
+            .session(session);
+
+          if (!originalItem) {
+            throw new NotFoundException(
+              `Item with ID ${item.itemId} not found`,
+            );
+          } else {
+            throw new BadRequestException(
+              `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${item.quantity}`,
+            );
+          }
+        }
+
+        // Update stock status based on new quantity
+        if (itemDetails.quantity === 0) {
+          console.log(`[CartService] Item ${item.itemId} is out of stock`);
+          await this.itemModel.updateOne(
+            { _id: item.itemId },
+            { stock: false },
+            { session },
+          );
+        } else if (!itemDetails.stock) {
+          // If item was out of stock but now has quantity, set stock to true
+          await this.itemModel.updateOne(
+            { _id: item.itemId },
+            { stock: true },
+            { session },
+          );
+        }
+      }
+
+      // Create new cart with the ordering user as the userId
+      const newCart = await this.cartModel
+        .create(
+          [
+            {
+              userId: user._id,
+              items: placeOrderDto.items.map((item) => ({
+                itemId: new mongoose.Types.ObjectId(item.itemId),
+                quantity: item.quantity,
+                price: item.price,
+              })),
+              totalAmount: placeOrderDto.totalAmount,
+              paymentMethod: placeOrderDto.paymentMethod,
+              orderNote: placeOrderDto.orderNote,
+              isOrderForOther: true,
+              recipientInfo: {
+                name: placeOrderDto.recipientName,
+                email: placeOrderDto.recipientEmail,
+                address: placeOrderDto.recipientAddress,
+                phone: placeOrderDto.recipientPhone,
+                note: placeOrderDto.orderNote,
+              },
+              status: 'pending',
+            },
+          ],
+          { session },
+        )
+        .then((carts) => carts[0]);
+
+      if (newCart) {
+        console.log(`[CartService] Updating user ${user._id} cart list`);
+        await this.userService.updateUserCart(user._id, newCart._id);
+      }
+
+      await session.commitTransaction();
+      console.log(`[CartService] Cart created successfully: ${newCart._id}`);
+      return newCart;
+    } catch (error) {
+      console.error(`[CartService] Error creating cart: ${error.message}`);
       await session.abortTransaction();
       throw error;
     } finally {
@@ -144,7 +272,8 @@ export class CartService {
       });
     }
 
-    return {
+    // Create response object with base cart info
+    const response = {
       _id: cartInfo._id,
       userId: cartInfo.userId,
       username: user ? user.email : 'Unknown User',
@@ -153,7 +282,12 @@ export class CartService {
       status: cartInfo.status || 'pending',
       paymentMethod: cartInfo.paymentMethod || 'Not specified',
       purchaseDate: cartInfo.purchaseDate,
+      orderNote: cartInfo.orderNote,
+      isOrderForOther: cartInfo.isOrderForOther || false,
+      recipientInfo: cartInfo.recipientInfo || null,
     };
+
+    return response;
   }
 
   async generatePdf(res: Response, cartId: string) {
@@ -203,28 +337,28 @@ export class CartService {
     let itemTotal = 0;
     cartInfo.items.forEach((item) => {
       const startY = doc.y;
-      
+
       // Handle long item names with text wrapping
       const itemName = item.itemName.toString();
       const maxWidth = 180; // Maximum width for item name column
-      
+
       // First, write the item name with wrapping
       doc.text(itemName, 50, startY, {
         width: maxWidth,
-        continued: false
+        continued: false,
       });
-      
+
       // Get the height of the wrapped text
       const textHeight = doc.heightOfString(itemName, { width: maxWidth });
       const lines = Math.ceil(textHeight / 15); // 15 is the line height
-      
+
       // Write other columns at the startY position
       doc.text(item.quantity.toString(), 250, startY);
       doc.text(`${item.price.toFixed(2)} vnd`, 350, startY);
       const total = item.quantity * item.price;
       itemTotal += total;
       doc.text(`${total.toFixed(2)} vnd`, 450, startY);
-      
+
       // Move down based on the number of lines needed
       doc.moveDown(lines);
     });
@@ -255,31 +389,31 @@ export class CartService {
     }
 
     const session = await this.cartModel.db.startSession();
-    
+
     try {
       session.startTransaction();
-      
+
       const cart = await this.cartModel.findById(cartId).session(session);
-      
+
       if (!cart) {
         throw new NotFoundException('Cart not found');
       }
-  
+
       const oldStatus = cart.status;
       const newStatus = updateData.status;
-  
+
       if (newStatus && oldStatus !== newStatus) {
         await this.handleInventoryUpdate(cart, oldStatus, newStatus);
       }
-  
+
       const updatedCart = await this.cartModel.findByIdAndUpdate(
-        cartId, 
-        updateData, 
-        { new: true, session }
+        cartId,
+        updateData,
+        { new: true, session },
       );
-      
+
       await session.commitTransaction();
-      
+
       return updatedCart;
     } catch (error) {
       await session.abortTransaction();
@@ -296,38 +430,48 @@ export class CartService {
     newStatus: string,
   ) {
     const session = await this.cartModel.db.startSession();
-    
+
     try {
       session.startTransaction();
-      
+
       // Case: Canceling a cart (from pending or done) - add quantities back to inventory
-      if (newStatus === 'cancel' && (oldStatus === 'pending' || oldStatus === 'done')) {
+      if (
+        newStatus === 'cancel' &&
+        (oldStatus === 'pending' || oldStatus === 'done')
+      ) {
         for (const item of cart.items) {
           await this.increaseItemQuantity(item.itemId, item.quantity, session);
         }
       }
-      
+
       // Case: Moving from canceled back to pending or done - decrease quantities again
-      else if (oldStatus === 'cancel' && (newStatus === 'pending' || newStatus === 'done')) {
+      else if (
+        oldStatus === 'cancel' &&
+        (newStatus === 'pending' || newStatus === 'done')
+      ) {
         for (const item of cart.items) {
-          const itemDetails = await this.itemModel.findById(item.itemId).session(session);
-          
+          const itemDetails = await this.itemModel
+            .findById(item.itemId)
+            .session(session);
+
           if (!itemDetails) {
-            throw new NotFoundException(`Item with ID ${item.itemId} not found`);
+            throw new NotFoundException(
+              `Item with ID ${item.itemId} not found`,
+            );
           }
-          
+
           if (itemDetails.quantity < item.quantity) {
             throw new BadRequestException(
-              `Cannot restore cart to ${newStatus} status. Not enough inventory for item ${itemDetails.name}.`
+              `Cannot restore cart to ${newStatus} status. Not enough inventory for item ${itemDetails.name}.`,
             );
           }
         }
-        
+
         for (const item of cart.items) {
           await this.decreaseItemQuantity(item.itemId, item.quantity, session);
         }
       }
-      
+
       await session.commitTransaction();
     } catch (error) {
       await session.abortTransaction();
@@ -344,29 +488,29 @@ export class CartService {
     session?: mongoose.ClientSession,
   ) {
     const options = session ? { session } : {};
-    
+
     const item = await this.itemModel.findOneAndUpdate(
-      { 
+      {
         _id: itemId,
-        quantity: { $gte: quantity }
+        quantity: { $gte: quantity },
       },
-      { 
-        $inc: { quantity: -quantity } 
+      {
+        $inc: { quantity: -quantity },
       },
-      { 
+      {
         new: true,
-        ...options
-      }
+        ...options,
+      },
     );
 
     if (!item) {
       const originalItem = await this.itemModel.findById(itemId, null, options);
-      
+
       if (!originalItem) {
         throw new NotFoundException(`Item with ID ${itemId} not found`);
       } else {
         throw new BadRequestException(
-          `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${quantity}`
+          `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${quantity}`,
         );
       }
     }
@@ -375,10 +519,10 @@ export class CartService {
       await this.itemModel.updateOne(
         { _id: itemId },
         { stock: false },
-        options
+        options,
       );
     }
-    
+
     return item;
   }
 
@@ -389,23 +533,23 @@ export class CartService {
     session?: mongoose.ClientSession,
   ) {
     const options = session ? { session } : {};
-    
+
     const item = await this.itemModel.findOneAndUpdate(
       { _id: itemId },
-      { 
+      {
         $inc: { quantity: quantity },
-        $set: { stock: true }
+        $set: { stock: true },
       },
-      { 
+      {
         new: true,
-        ...options 
-      }
+        ...options,
+      },
     );
 
     if (!item) {
       throw new NotFoundException(`Item with ID ${itemId} not found`);
     }
-    
+
     return item;
   }
 }

@@ -1,54 +1,28 @@
-import {
-  IsArray,
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import mongoose from 'mongoose';
-
-export class CartItemDto {
-  @IsMongoId()
-  @IsNotEmpty({ message: 'Item ID is required' })
-  itemId: mongoose.Schema.Types.ObjectId;
-
-  @IsNumber()
-  @Min(1, { message: 'Quantity must be at least 1' })
-  quantity: number;
-
-  @IsNumber()
-  @Min(0, { message: 'Price cannot be negative' })
-  price: number;
-}
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCartDto {
-  @IsMongoId()
-  @IsNotEmpty({ message: 'User ID is required' })
+  @IsNotEmpty({ message: 'UserId không được để trống' })
   userId: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CartItemDto)
-  @IsNotEmpty({ message: 'Cart items are required' })
-  items: CartItemDto[];
+  @IsNotEmpty({ message: 'Items không được để trống' })
+  items: {
+    itemId: string;
+    quantity: number;
+    price: number;
+  }[];
 
-  @IsNumber()
-  @Min(0, { message: 'Total amount cannot be negative' })
+  @IsNotEmpty({ message: 'Total amount không được để trống' })
   totalAmount: number;
 
   @IsString()
-  @IsEnum(['pending', 'done', 'cancel'], {
-    message: 'Status must be one of: pending, done, cancel',
-  })
   @IsOptional()
-  status?: string = 'pending';
+  status?: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Payment method is required' })
+  @IsNotEmpty({ message: 'Payment method không được để trống' })
   paymentMethod: string;
+
+  @IsString()
+  @IsOptional()
+  orderNote?: string;
 }

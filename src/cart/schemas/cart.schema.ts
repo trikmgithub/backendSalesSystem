@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { User } from 'src/decorator/customize';
 import { Item } from 'src/items/schemas/item.schema';
+import { RecipientInfo, RecipientInfoSchema } from './recipient-info.schema';
 
 export type CartDocument = Cart & Document;
 
@@ -29,7 +30,7 @@ export class Cart {
   @Prop({ default: 0 })
   totalAmount: number;
 
-  @Prop()
+  @Prop({ default: 'pending' })
   status: string;
 
   @Prop()
@@ -37,6 +38,18 @@ export class Cart {
 
   @Prop({ default: Date.now })
   purchaseDate: Date;
+
+  // New field for order notes
+  @Prop()
+  orderNote: string;
+
+  // New field to track if this is an order for someone else
+  @Prop({ default: false })
+  isOrderForOther: boolean;
+
+  // Recipient information when ordering for someone else
+  @Prop({ type: RecipientInfoSchema })
+  recipientInfo: RecipientInfo;
 
   @Prop({ default: false })
   isDeleted: boolean;

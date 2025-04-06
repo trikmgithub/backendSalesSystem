@@ -455,8 +455,8 @@ export class UsersService {
     }
 
     const isExist = user.favoriteItems.includes(favoriteItemDto.itemId);
-   
-    return isExist ? "Added" : "Not added";
+
+    return isExist ? 'Added' : 'Not added';
   }
 
   //remove favorite item
@@ -467,13 +467,13 @@ export class UsersService {
     }
 
     user.favoriteItems = user.favoriteItems.filter(
-      (itemId) => itemId.toString() !== favoriteItemDto.itemId.toString()
+      (itemId) => itemId.toString() !== favoriteItemDto.itemId.toString(),
     );
     await user.save();
 
     const isExist = user.favoriteItems.includes(favoriteItemDto.itemId);
 
-    return isExist ? "Not removed" : "Removed";
+    return isExist ? 'Not removed' : 'Removed';
   }
 
   //get favorite items

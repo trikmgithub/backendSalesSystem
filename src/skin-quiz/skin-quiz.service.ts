@@ -76,11 +76,13 @@ export class SkinQuizService {
     for (const questionId in answers) {
       const question = await this.questionModel.findOne({
         questionId: questionId,
-        isActive: true
+        isActive: true,
       });
 
       if (!question) {
-        throw new BadRequestException(`Question with ID ${questionId} is not active or does not exist`);
+        throw new BadRequestException(
+          `Question with ID ${questionId} is not active or does not exist`,
+        );
       }
 
       totalScore += answers[questionId];
@@ -196,12 +198,14 @@ export class SkinQuizService {
 
   // Delete a skin type info
   async deleteSkinTypeInfo(skinType: string) {
-    const data = await this.skinTypeResultModel.findOneAndDelete({ skinType: skinType });
+    const data = await this.skinTypeResultModel.findOneAndDelete({
+      skinType: skinType,
+    });
 
     if (!data) {
       throw new BadRequestException('Skin type not found');
     }
-    
+
     return data;
   }
 
