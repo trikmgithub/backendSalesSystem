@@ -161,7 +161,10 @@ export class EmailService {
         let itemTotal = 0;
         cartInfo.items.forEach((item) => {
           y = doc.y;
-          doc.text(item.itemName.toString(), 50, y);
+          doc.text(item.itemName.toString(), 50, y, {
+            width: 180,
+            continued: false
+          });
           doc.text(item.quantity.toString(), 250, y);
           doc.text(`${item.price.toFixed(2)} vnd`, 350, y);
           const total = item.quantity * item.price;

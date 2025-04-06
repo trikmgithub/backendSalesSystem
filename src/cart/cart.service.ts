@@ -201,15 +201,32 @@ export class CartService {
 
     // Add items to table
     let itemTotal = 0;
-    cartInfo.items.forEach((item, index) => {
-      y = doc.y;
-      doc.text(item.itemName.toString(), 50, y);
-      doc.text(item.quantity.toString(), 250, y);
-      doc.text(`${item.price.toFixed(2)} vnd`, 350, y);
+    cartInfo.items.forEach((item) => {
+      const startY = doc.y;
+      
+      // Handle long item names with text wrapping
+      const itemName = item.itemName.toString();
+      const maxWidth = 180; // Maximum width for item name column
+      
+      // First, write the item name with wrapping
+      doc.text(itemName, 50, startY, {
+        width: maxWidth,
+        continued: false
+      });
+      
+      // Get the height of the wrapped text
+      const textHeight = doc.heightOfString(itemName, { width: maxWidth });
+      const lines = Math.ceil(textHeight / 15); // 15 is the line height
+      
+      // Write other columns at the startY position
+      doc.text(item.quantity.toString(), 250, startY);
+      doc.text(`${item.price.toFixed(2)} vnd`, 350, startY);
       const total = item.quantity * item.price;
       itemTotal += total;
-      doc.text(`${total.toFixed(2)} vnd`, 450, y);
-      doc.moveDown();
+      doc.text(`${total.toFixed(2)} vnd`, 450, startY);
+      
+      // Move down based on the number of lines needed
+      doc.moveDown(lines);
     });
 
     // Add total line
