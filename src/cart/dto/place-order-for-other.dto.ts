@@ -47,7 +47,7 @@ export class PlaceOrderForOtherDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Recipient phone không được để trống' })
-  @Matches(/^[0-9]{10,11}$/, { message: 'Số điện thoại không hợp lệ' })
+  @Matches(/^[0-9]{10}$/, { message: 'Số điện thoại không hợp lệ' })
   recipientPhone: string;
 
   @IsString()
