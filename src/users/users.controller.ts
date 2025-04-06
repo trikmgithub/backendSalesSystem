@@ -16,6 +16,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './interface/users.interface';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { FavoriteItemDto } from './dto/favorite-item.dto';
 
 @ApiTags('Users Module')
 @Controller('users')
@@ -58,7 +59,21 @@ export class UsersController {
     return await this.usersService.forgetPassword(email, password, recheck);
   }
 
+  //add favorite item
+  @Post('favorite-items')
+  @ResponseMessage('Added item to favorites successfully')
+  async addFavoriteItem(@User() user: IUser, @Body() favoriteItemDto: FavoriteItemDto) {
+    return this.usersService.addFavoriteItem(user._id, favoriteItemDto);
+  }
+
   //------------------------GET /users
+
+  
+  @Get('favorite-items')
+  @ResponseMessage('Get favorite items successfully')
+  async getFavoriteItems(@User() user: IUser) {
+    return this.usersService.getFavoriteItems(user._id);
+  }
 
   //get phone number
   @Get('/phone')
@@ -171,4 +186,12 @@ export class UsersController {
       deleteUser,
     };
   }
+
+  //remove favorite item
+  @Delete('favorite-items')
+  @ResponseMessage('Removed item from favorites successfully')
+  async removeFavoriteItem(@User() user: IUser, @Body() favoriteItemDto: FavoriteItemDto) {
+    return this.usersService.removeFavoriteItem(user._id, favoriteItemDto);
+  }
+
 }

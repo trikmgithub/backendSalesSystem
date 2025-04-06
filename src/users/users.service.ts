@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,6 +17,7 @@ import { User } from 'src/decorator/customize';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { PaginationDto } from './dto/pagination-user.dto';
 import { ConfigService } from '@nestjs/config';
+import { FavoriteItemDto } from './dto/favorite-item.dto';
 
 @Injectable()
 export class UsersService {
@@ -439,4 +441,56 @@ export class UsersService {
     const hash = bcrypt.hashSync(password, salt);
     return hash;
   };
+
+  //add favorite item
+  async addFavoriteItem(userId: string, favoriteItemDto: FavoriteItemDto) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.favoriteItems.includes(favoriteItemDto.itemId)) {
+      user.favoriteItems.push(favoriteItemDto.itemId);
+      await user.save();
+    }
+
+    const isExist = user.favoriteItems.includes(favoriteItemDto.itemId);
+   
+    return isExist ? "Added" : "Not added";
+  }
+
+  //remove favorite item
+  async removeFavoriteItem(userId: string, favoriteItemDto: FavoriteItemDto) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.favoriteItems = user.favoriteItems.filter(
+      (itemId) => itemId.toString() !== favoriteItemDto.itemId.toString()
+    );
+    await user.save();
+
+    const isExist = user.favoriteItems.includes(favoriteItemDto.itemId);
+
+    return isExist ? "Not removed" : "Removed";
+  }
+
+  //get favorite items
+  async getFavoriteItems(userId: string) {
+    if (!userId) {
+      throw new NotFoundException('User not found');
+    }
+
+    const userInfo = await this.userModel
+      .findById(userId)
+      .populate('favoriteItems')
+      .select('favoriteItems');
+
+    if (!userInfo) {
+      throw new NotFoundException('Failed to get favorite items');
+    }
+
+    return userInfo.favoriteItems;
+  }
 }
