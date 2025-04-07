@@ -12,7 +12,6 @@ import {
 } from './schemas/skin-quiz.schema';
 import { UsersModule } from 'src/users/users.module';
 import { Module } from '@nestjs/common';
-import { SkinQuizSeedService } from './seed/seed.service';
 
 @Module({
   imports: [
@@ -24,7 +23,7 @@ import { SkinQuizSeedService } from './seed/seed.service';
     UsersModule,
   ],
   controllers: [SkinQuizController],
-  providers: [SkinQuizService, SkinQuizSeedService],
-  exports: [SkinQuizService, SkinQuizSeedService],
+  providers: [SkinQuizService],
+  exports: [SkinQuizService],
 })
 export class SkinQuizModule {}
