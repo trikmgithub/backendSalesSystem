@@ -51,7 +51,8 @@ export class ItemsService {
   //get items by skin user
   async getItemsBySkinUser(user: IUser) {
     const userInfo = await this.usersService.getOneUser(user._id);
-    const items = await this.getFuzzyItems(userInfo.skin);
+    const skinType = userInfo.skin.replace(/_/g, ' ');
+    const items = await this.getFuzzyItems(skinType);
     return items;
   }
 
