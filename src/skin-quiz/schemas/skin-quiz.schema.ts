@@ -37,6 +37,9 @@ export class SkinTypeResult {
 
   @Prop({ type: [String], required: true })
   recommendations: string[];
+
+  @Prop({ required: true })
+  scoreThreshold: number;
 }
 
 export const SkinTypeResultSchema =
