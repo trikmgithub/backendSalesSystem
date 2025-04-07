@@ -30,6 +30,9 @@ export class SkinTypeResult {
   skinType: string;
 
   @Prop({ required: true })
+  vietnameseSkinType: string;
+
+  @Prop({ required: true })
   description: string;
 
   @Prop({ type: [String], required: true })
