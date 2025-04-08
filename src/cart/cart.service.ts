@@ -427,7 +427,6 @@ export class CartService {
     doc.fontSize(14).text('Order Information', { underline: true });
     doc.moveDown(0.5);
     doc.fontSize(12).text(`Order ID: ${cartInfo._id}`);
-    doc.text(`Customer name: ${cartInfo.recipientInfo.name}`);
     doc.text(`Customer gmail: ${cartInfo.recipientInfo.email}`);
     doc.text(`Customer phone: ${cartInfo.recipientInfo.email}`);
     doc.text(

@@ -137,7 +137,6 @@ export class EmailService {
         doc.fontSize(14).text('Order Information', { underline: true });
         doc.moveDown(0.5);
 
-        doc.fontSize(12).text(`Customer name: ${cartInfo.recipientInfo.name}`);
         doc.fontSize(12).text(`Customer gmail: ${cartInfo.recipientInfo.email}`);
         doc.fontSize(12).text(`Customer phone: ${cartInfo.recipientInfo.phone}`);
         doc.text(
