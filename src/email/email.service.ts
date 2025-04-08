@@ -133,11 +133,21 @@ export class EmailService {
         doc.fontSize(25).text('SKIN BEAUTY INVOICE', { align: 'center' });
         doc.moveDown();
 
+        // Add order information
         doc.fontSize(14).text('Order Information', { underline: true });
-        doc.fontSize(12).text(`Order ID: ${cartInfo._id}`);
-        doc.text(`Customer Email: ${cartInfo.username || 'N/A'}`);
+        doc.moveDown(0.5);
+
+        doc.fontSize(12).text(`Customer name: ${cartInfo.recipientInfo.name}`);
+        doc.fontSize(12).text(`Customer gmail: ${cartInfo.recipientInfo.email}`);
+        doc.fontSize(12).text(`Customer phone: ${cartInfo.recipientInfo.phone}`);
         doc.text(
-          `Order Date: ${new Date(cartInfo.purchaseDate).toLocaleDateString()}`,
+          `Order Date: ${
+            (() => {
+              const purchaseDate = new Date(cartInfo.purchaseDate);
+              console.log('Purchase Date:', purchaseDate);
+              return `${purchaseDate.getDate()}/${purchaseDate.getMonth() + 1}/${purchaseDate.getFullYear()}`;
+            })()
+          }`,
         );
         doc.text(`Payment Method: ${cartInfo.paymentMethod || 'N/A'}`);
         doc.moveDown();
@@ -156,7 +166,7 @@ export class EmailService {
           .moveTo(50, doc.y + 5)
           .lineTo(550, doc.y + 5)
           .stroke();
-        doc.moveDown();
+        doc.moveDown(2);
 
         let itemTotal = 0;
         cartInfo.items.forEach((item) => {
@@ -187,9 +197,6 @@ export class EmailService {
         doc
           .fontSize(10)
           .text('Thank you for your purchase!', { align: 'center' });
-        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, {
-          align: 'center',
-        });
 
         doc.end();
       } catch (error) {

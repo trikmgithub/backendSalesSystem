@@ -425,10 +425,19 @@ export class CartService {
 
     // Add order information
     doc.fontSize(14).text('Order Information', { underline: true });
+    doc.moveDown(0.5);
     doc.fontSize(12).text(`Order ID: ${cartInfo._id}`);
-    doc.text(`Customer gmail: ${cartInfo.username}`);
+    doc.text(`Customer name: ${cartInfo.recipientInfo.name}`);
+    doc.text(`Customer gmail: ${cartInfo.recipientInfo.email}`);
+    doc.text(`Customer phone: ${cartInfo.recipientInfo.email}`);
     doc.text(
-      `Order Date: ${new Date(cartInfo.purchaseDate).toLocaleDateString()}`,
+      `Order Date: ${
+        (() => {
+          const purchaseDate = new Date(cartInfo.purchaseDate);
+          console.log('Purchase Date:', purchaseDate);
+          return `${purchaseDate.getDate()}/${purchaseDate.getMonth() + 1}/${purchaseDate.getFullYear()}`;
+        })()
+      }`,
     );
     doc.text(`Payment Method: ${cartInfo.paymentMethod}`);
     doc.moveDown();
@@ -449,7 +458,7 @@ export class CartService {
       .moveTo(50, doc.y + 5)
       .lineTo(550, doc.y + 5)
       .stroke();
-    doc.moveDown();
+    doc.moveDown(2);
 
     // Add items to table
     let itemTotal = 0;
@@ -491,9 +500,6 @@ export class CartService {
     // Add footer
     doc.moveDown(2);
     doc.fontSize(10).text('Thank you for your purchase!', { align: 'center' });
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, {
-      align: 'center',
-    });
 
     // Kết thúc và gửi dữ liệu
     doc.end();
