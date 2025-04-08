@@ -39,10 +39,7 @@ export class User {
   @Prop()
   address: string;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: SkinTypeResult.name,
-  })
+  @Prop()
   skin: string;
 
   @Prop({
