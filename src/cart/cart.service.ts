@@ -428,7 +428,7 @@ export class CartService {
     doc.moveDown(0.5);
     doc.fontSize(12).text(`Order ID: ${cartInfo._id}`);
     doc.text(`Customer gmail: ${cartInfo.recipientInfo.email}`);
-    doc.text(`Customer phone: ${cartInfo.recipientInfo.email}`);
+    doc.text(`Customer phone: ${cartInfo.recipientInfo.phone}`);
     doc.text(
       `Order Date: ${
         (() => {
