@@ -39,15 +39,9 @@ export class Cart {
   @Prop({ default: Date.now })
   purchaseDate: Date;
 
-  // New field for order notes
-  @Prop()
-  orderNote: string;
-
-  // New field to track if this is an order for someone else
   @Prop({ default: false })
   isOrderForOther: boolean;
 
-  // Recipient information when ordering for someone else
   @Prop({ type: RecipientInfoSchema })
   recipientInfo: RecipientInfo;
 

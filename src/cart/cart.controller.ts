@@ -28,9 +28,9 @@ export class CartController {
   //create new cart
   @Post('/create')
   @ResponseMessage('Cart created successfully')
-  async createCart(@Body() createCartDto: CreateCartDto) {
+  async createCart(@Body() createCartDto: PlaceOrderForOtherDto, @User() user: IUser) {
     try {
-      const cart = await this.cartService.createCart(createCartDto);
+      const cart = await this.cartService.createCart(createCartDto, user);
       return cart;
     } catch (error) {
       throw new HttpException(

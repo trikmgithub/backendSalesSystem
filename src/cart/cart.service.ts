@@ -28,29 +28,120 @@ export class CartService {
   //----------------POST /cart
 
   //create new cart
-  async createCart(createCartDto: CreateCartDto) {
+  // async createCart(createCartDto: CreateCartDto) {
+  //   const session = await this.cartModel.db.startSession();
+
+  //   try {
+  //     session.startTransaction();
+
+  //     for (const item of createCartDto.items) {
+  //       const itemDetails = await this.itemModel.findOneAndUpdate(
+  //         {
+  //           _id: item.itemId,
+  //           quantity: { $gte: item.quantity }, //gte: greater than or equal to
+  //         },
+  //         {
+  //           $inc: { quantity: -item.quantity }, //inc: increment
+  //           $set: { stock: true }, //set: set stock to true
+  //         },
+  //         {
+  //           new: true, //new: return the updated document
+  //           session, //session: use the same session for the operation
+  //         },
+  //       );
+
+  //       //if itemDetails is not found, throw an error
+  //       if (!itemDetails) {
+  //         const originalItem = await this.itemModel
+  //           .findById(item.itemId)
+  //           .session(session);
+
+  //         if (!originalItem) {
+  //           throw new NotFoundException(
+  //             `Item with ID ${item.itemId} not found`,
+  //           );
+  //         } else {
+  //           throw new BadRequestException(
+  //             `Not enough inventory for item ${originalItem.name}. Available: ${originalItem.quantity}, Requested: ${item.quantity}`,
+  //           );
+  //         }
+  //       }
+
+  //       //if itemDetails.quantity is 0, update the stock to false
+  //       if (itemDetails.quantity === 0) {
+  //         await this.itemModel.updateOne(
+  //           { _id: item.itemId },
+  //           { stock: false },
+  //           { session },
+  //         );
+  //       }
+  //     }
+
+  //     if (!createCartDto.status) {
+  //       createCartDto.status = 'pending';
+  //     }
+
+  //     const newCart = await this.cartModel
+  //       .create([createCartDto], { session })
+  //       .then((carts) => carts[0]);
+
+  //     if (newCart) {
+  //       await this.userService.updateUserCart(
+  //         createCartDto.userId,
+  //         newCart._id,
+  //       );
+  //     }
+
+  //     await session.commitTransaction();
+
+  //     return newCart;
+  //   } catch (error) {
+  //     await session.abortTransaction();
+  //     throw error;
+  //   } finally {
+  //     session.endSession();
+  //   }
+  // }
+
+  // create new cart
+  async createCart(orderDto: PlaceOrderForOtherDto, user: IUser) {
     const session = await this.cartModel.db.startSession();
 
     try {
       session.startTransaction();
 
-      for (const item of createCartDto.items) {
+      // Validate total amount matches sum of items
+      const calculatedTotal = orderDto.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+      if (Math.abs(calculatedTotal - orderDto.totalAmount) > 0.01) {
+        // Allow small floating point difference
+        throw new BadRequestException(
+          `Tổng tiền không khớp với giá trị sản phẩm. Tổng tiền: ${orderDto.totalAmount}, Giá trị sản phẩm: ${calculatedTotal}`,
+        );
+      }
+
+      // Validate and update inventory for each item
+      for (const item of orderDto.items) {
+        console.log(
+          `[CartService] Processing item ${item.itemId} with quantity ${item.quantity}`,
+        );
+
         const itemDetails = await this.itemModel.findOneAndUpdate(
           {
             _id: item.itemId,
-            quantity: { $gte: item.quantity }, //gte: greater than or equal to
+            quantity: { $gte: item.quantity },
           },
           {
-            $inc: { quantity: -item.quantity }, //inc: increment
-            $set: { stock: true }, //set: set stock to true
+            $inc: { quantity: -item.quantity },
           },
           {
-            new: true, //new: return the updated document
-            session, //session: use the same session for the operation
+            new: true,
+            session,
           },
         );
 
-        //if itemDetails is not found, throw an error
         if (!itemDetails) {
           const originalItem = await this.itemModel
             .findById(item.itemId)
@@ -67,35 +158,63 @@ export class CartService {
           }
         }
 
-        //if itemDetails.quantity is 0, update the stock to false
+        // Update stock status based on new quantity
         if (itemDetails.quantity === 0) {
+          console.log(`[CartService] Item ${item.itemId} is out of stock`);
           await this.itemModel.updateOne(
             { _id: item.itemId },
             { stock: false },
             { session },
           );
+        } else if (!itemDetails.stock) {
+          // If item was out of stock but now has quantity, set stock to true
+          await this.itemModel.updateOne(
+            { _id: item.itemId },
+            { stock: true },
+            { session },
+          );
         }
       }
 
-      if (!createCartDto.status) {
-        createCartDto.status = 'pending';
-      }
-
+      // Create new cart with the ordering user as the userId
       const newCart = await this.cartModel
-        .create([createCartDto], { session })
+        .create(
+          [
+            {
+              userId: user._id,
+              items: orderDto.items.map((item) => ({
+                itemId: new mongoose.Types.ObjectId(item.itemId),
+                quantity: item.quantity,
+                price: item.price,
+              })),
+              totalAmount: orderDto.totalAmount,
+              paymentMethod: orderDto.paymentMethod,
+              orderNote: orderDto.orderNote,
+              isOrderForOther: false,
+              recipientInfo: {
+                name: orderDto.recipientName,
+                email: orderDto.recipientEmail,
+                address: orderDto.recipientAddress,
+                phone: orderDto.recipientPhone,
+                note: orderDto.orderNote,
+              },
+              status: 'pending',
+            },
+          ],
+          { session },
+        )
         .then((carts) => carts[0]);
 
       if (newCart) {
-        await this.userService.updateUserCart(
-          createCartDto.userId,
-          newCart._id,
-        );
+        console.log(`[CartService] Updating user ${user._id} cart list`);
+        await this.userService.updateUserCart(user._id, newCart._id);
       }
 
       await session.commitTransaction();
-
+      console.log(`[CartService] Cart created successfully: ${newCart._id}`);
       return newCart;
     } catch (error) {
+      console.error(`[CartService] Error creating cart: ${error.message}`);
       await session.abortTransaction();
       throw error;
     } finally {
@@ -282,7 +401,6 @@ export class CartService {
       status: cartInfo.status || 'pending',
       paymentMethod: cartInfo.paymentMethod || 'Not specified',
       purchaseDate: cartInfo.purchaseDate,
-      orderNote: cartInfo.orderNote,
       isOrderForOther: cartInfo.isOrderForOther || false,
       recipientInfo: cartInfo.recipientInfo || null,
     };
