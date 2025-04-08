@@ -3,6 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Cart } from 'src/cart/schemas/cart.schema';
 import { Role } from 'src/roles/schemas/role.schema';
 import { Item } from 'src/items/schemas/item.schema';
+import { SkinTypeResult } from 'src/skin-quiz/schemas/skin-quiz.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -38,7 +39,10 @@ export class User {
   @Prop()
   address: string;
 
-  @Prop()
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: SkinTypeResult.name,
+  })
   skin: string;
 
   @Prop({
