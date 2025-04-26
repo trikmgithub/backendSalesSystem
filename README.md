@@ -4,6 +4,7 @@ A full-featured RESTful API for a skincare e-commerce platform built with NestJS
 
 ## Table of Contents
 
+- [Frontend](#frontend)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -13,6 +14,10 @@ A full-featured RESTful API for a skincare e-commerce platform built with NestJS
 - [Environment Variables](#environment-variables)
 - [Running the App](#running-the-app)
 - [API Documentation](#api-documentation)
+
+## Frontend
+
+- **Github**: [Link](https://github.com/trikmgithub/frontendSalesSystem)
 
 ## Features
 
@@ -198,3 +203,17 @@ Swagger UI documentation is available at `http://localhost:8000/api` when the ap
 - Multiple payment methods
 - Secure payment gateway integration
 - Order status updates
+
+## 👥 Team
+
+-   Backend Developers: [trikmgithub]
+-   Database Developers: [trikmgithub]
+
+## 📝 Backend
+
+-   Azure: https://mybeautyskinapp.azurewebsites.net/api
+-   Local: http://localhost:8000/
+
+## 🙏 Acknowledgments
+
+-   NestJS build tool
